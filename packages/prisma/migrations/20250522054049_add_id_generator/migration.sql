@@ -19,7 +19,8 @@
  * under the License.
  */
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+DROP EXTENSION IF EXISTS pgcrypto;
+CREATE EXTENSION pgcrypto SCHEMA document_hr_sch;
 
 -- The `nanoid()` function generates a compact, URL-friendly unique identifier.
 -- Based on the given size and alphabet, it creates a randomized string that's ideal for

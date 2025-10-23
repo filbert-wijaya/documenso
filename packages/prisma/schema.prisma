@@ -4,6 +4,7 @@ generator kysely {
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 generator json {
@@ -12,52 +13,75 @@ generator json {
 
 generator zod {
   provider             = "zod-prisma-types"
-  createInputTypes     = "false"
-  useDefaultValidators = "false"
-  useMultipleFiles     = "true"
-  writeBarrelFiles     = "false"
+  createInputTypes     = false
+  writeBarrelFiles     = false
+  useMultipleFiles     = true
+  useDefaultValidators = false
 }
 
 datasource db {
   provider  = "postgresql"
   url       = env("NEXT_PRIVATE_DATABASE_URL")
   directUrl = env("NEXT_PRIVATE_DIRECT_DATABASE_URL")
+  schemas  = ["public", "document_hr_sch", "core_hr_sch"]
+}
+
+// Todo: (RR7) Remove after RR7 migration.
+enum IdentityProvider {
+  DOCUMENSO
+  GOOGLE
+  OIDC
+
+  @@schema("document_hr_sch")
+}
+
+enum Role {
+  ADMIN
+  USER
+
+  @@schema("document_hr_sch")
 }
 
 model User {
-  id                   Int                    @id @default(autoincrement())
-  name                 String?
-  email                String                 @unique
-  emailVerified        DateTime?
-  password             String?
-  source               String?
-  identityProvider     IdentityProvider       @default(DOCUMENSO)
-  signature            String?
-  roles                Role[]                 @default([USER])
-  createdAt            DateTime               @default(now())
-  lastSignedIn         DateTime               @default(now())
-  updatedAt            DateTime               @default(now()) @updatedAt
-  twoFactorBackupCodes String?
-  twoFactorEnabled     Boolean                @default(false)
+  id               Int              @id @default(autoincrement())
+  name             String?
+  email            String           @unique
+  emailVerified    DateTime?
+  password         String? // Todo: (RR7) Remove after RR7 migration.
+  source           String?
+  signature        String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @default(now()) @updatedAt
+  lastSignedIn     DateTime         @default(now())
+  roles            Role[]           @default([USER])
+  identityProvider IdentityProvider @default(DOCUMENSO) // Todo: (RR7) Remove after RR7 migration.
+  avatarImageId    String?
+  disabled         Boolean          @default(false)
+
+  accounts            Account[]
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+
+  ownedOrganisations Organisation[]
+  organisationMember OrganisationMember[]
+
   twoFactorSecret      String?
-  avatarImageId        String?
-  disabled             Boolean                @default(false)
-  accounts             Account[]
-  apiTokens            ApiToken[]
-  envelopes            Envelope[]
-  folders              Folder[]
-  ownedOrganisations   Organisation[]
-  organisationMember   OrganisationMember[]
-  passkeys             Passkey[]
-  passwordResetTokens  PasswordResetToken[]
-  sessions             Session[]
-  siteSettings         SiteSettings[]
-  avatarImage          AvatarImage?           @relation(fields: [avatarImageId], references: [id])
-  securityAuditLogs    UserSecurityAuditLog[]
-  verificationTokens   VerificationToken[]
-  webhooks             Webhook[]
+  twoFactorEnabled     Boolean @default(false)
+  twoFactorBackupCodes String?
+
+  folders   Folder[]
+  envelopes Envelope[]
+
+  verificationTokens VerificationToken[]
+  apiTokens          ApiToken[]
+  securityAuditLogs  UserSecurityAuditLog[]
+  webhooks           Webhook[]
+  siteSettings       SiteSettings[]
+  passkeys           Passkey[]
+  avatarImage        AvatarImage?           @relation(fields: [avatarImageId], references: [id], onDelete: SetNull)
 
   @@index([email])
+  @@schema("document_hr_sch")
 }
 
 model TeamProfile {
@@ -65,7 +89,33 @@ model TeamProfile {
   enabled Boolean @default(false)
   teamId  Int     @unique
   bio     String?
-  team    Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  team Team? @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  @@schema("document_hr_sch")
+}
+
+enum UserSecurityAuditLogType {
+  ACCOUNT_PROFILE_UPDATE
+  ACCOUNT_SSO_LINK
+  ACCOUNT_SSO_UNLINK
+  ORGANISATION_SSO_LINK
+  ORGANISATION_SSO_UNLINK
+  AUTH_2FA_DISABLE
+  AUTH_2FA_ENABLE
+  PASSKEY_CREATED
+  PASSKEY_DELETED
+  PASSKEY_UPDATED
+  PASSWORD_RESET
+  PASSWORD_UPDATE
+  SESSION_REVOKED
+  SIGN_OUT
+  SIGN_IN
+  SIGN_IN_FAIL
+  SIGN_IN_2FA_FAIL
+  SIGN_IN_PASSKEY_FAIL
+
+  @@schema("document_hr_sch")
 }
 
 model UserSecurityAuditLog {
@@ -75,7 +125,10 @@ model UserSecurityAuditLog {
   type      UserSecurityAuditLogType
   userAgent String?
   ipAddress String?
-  user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("document_hr_sch")
 }
 
 model PasswordResetToken {
@@ -85,6 +138,8 @@ model PasswordResetToken {
   expiry    DateTime
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("document_hr_sch")
 }
 
 model Passkey {
@@ -100,7 +155,10 @@ model Passkey {
   credentialDeviceType String
   credentialBackedUp   Boolean
   transports           String[]
-  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("document_hr_sch")
 }
 
 model AnonymousVerificationToken {
@@ -108,19 +166,35 @@ model AnonymousVerificationToken {
   token     String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
+
+  @@schema("document_hr_sch")
 }
 
 model VerificationToken {
   id          Int      @id @default(autoincrement())
+  secondaryId String   @unique @default(cuid())
   identifier  String
   token       String   @unique
+  completed   Boolean  @default(false)
   expires     DateTime
   createdAt   DateTime @default(now())
-  userId      Int
-  secondaryId String   @unique @default(cuid())
-  completed   Boolean  @default(false)
   metadata    Json?
+  userId      Int
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("document_hr_sch")
+}
+
+enum WebhookTriggerEvents {
+  DOCUMENT_CREATED
+  DOCUMENT_SENT
+  DOCUMENT_OPENED
+  DOCUMENT_SIGNED
+  DOCUMENT_COMPLETED
+  DOCUMENT_REJECTED
+  DOCUMENT_CANCELLED
+
+  @@schema("document_hr_sch")
 }
 
 model Webhook {
@@ -132,24 +206,41 @@ model Webhook {
   createdAt     DateTime               @default(now())
   updatedAt     DateTime               @default(now()) @updatedAt
   userId        Int
+  user          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   teamId        Int
   team          Team                   @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   webhookCalls  WebhookCall[]
+
+  @@schema("document_hr_sch")
+}
+
+enum WebhookCallStatus {
+  SUCCESS
+  FAILED
+
+  @@schema("document_hr_sch")
 }
 
 model WebhookCall {
   id              String               @id @default(cuid())
   status          WebhookCallStatus
   url             String
+  event           WebhookTriggerEvents
   requestBody     Json
   responseCode    Int
   responseHeaders Json?
   responseBody    Json?
   createdAt       DateTime             @default(now())
   webhookId       String
-  event           WebhookTriggerEvents
   webhook         Webhook              @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@schema("document_hr_sch")
+}
+
+enum ApiTokenAlgorithm {
+  SHA512
+
+  @@schema("document_hr_sch")
 }
 
 model ApiToken {
@@ -160,9 +251,19 @@ model ApiToken {
   expires   DateTime?
   createdAt DateTime          @default(now())
   userId    Int?
+  user      User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
   teamId    Int
   team      Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user      User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("document_hr_sch")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  INACTIVE
+
+  @@schema("document_hr_sch")
 }
 
 model Subscription {
@@ -174,163 +275,261 @@ model Subscription {
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   cancelAtPeriodEnd Boolean            @default(false)
-  customerId        String
-  organisationId    String             @unique
-  organisation      Organisation       @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  customerId String
+
+  organisationId String       @unique
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
 
   @@index([organisationId])
+  @@schema("document_hr_sch")
 }
 
 /// @zod.import(["import { ZClaimFlagsSchema } from '@documenso/lib/types/subscription';"])
 model SubscriptionClaim {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  name        String
-  locked      Boolean  @default(false)
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name   String
+  locked Boolean @default(false)
+
   teamCount   Int
   memberCount Int
-  /// [ClaimFlags] @zod.custom.use(ZClaimFlagsSchema)
-  flags       Json
+
+  flags Json /// [ClaimFlags] @zod.custom.use(ZClaimFlagsSchema)
+
+  @@schema("document_hr_sch")
 }
 
 /// @zod.import(["import { ZClaimFlagsSchema } from '@documenso/lib/types/subscription';"])
 model OrganisationClaim {
-  id                          String        @id
-  createdAt                   DateTime      @default(now())
-  updatedAt                   DateTime      @updatedAt
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   originalSubscriptionClaimId String?
-  teamCount                   Int
-  memberCount                 Int
-  /// [ClaimFlags] @zod.custom.use(ZClaimFlagsSchema)
-  flags                       Json
   organisation                Organisation?
+
+  teamCount   Int
+  memberCount Int
+
+  flags Json /// [ClaimFlags] @zod.custom.use(ZClaimFlagsSchema)
+
+  @@schema("document_hr_sch")
 }
 
 model Account {
   id                String   @id @default(cuid())
+  // When this record was created, unrelated to anything passed back by the provider.
+  createdAt         DateTime @default(now())
   userId            Int
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
   expires_at        Int?
+  // Some providers return created_at so we need to make it optional
+  created_at        Int?
+  // Stops next-auth from crashing when dealing with AzureAD
+  ext_expires_in    Int?
   token_type        String?
   scope             String?
-  id_token          String?
+  id_token          String?  @db.Text
   session_state     String?
-  created_at        Int?
-  ext_expires_in    Int?
   password          String?
-  createdAt         DateTime @default(now())
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@schema("document_hr_sch")
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
+  id           String @id @default(cuid())
+  sessionToken String @unique
   userId       Int
-  createdAt    DateTime @default(now())
-  expiresAt    DateTime
-  ipAddress    String?
-  updatedAt    DateTime @updatedAt
-  userAgent    String?
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  ipAddress String?
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@schema("document_hr_sch")
+}
+
+enum DocumentStatus {
+  DRAFT
+  PENDING
+  COMPLETED
+  REJECTED
+
+  @@schema("document_hr_sch")
+}
+
+enum DocumentSource {
+  DOCUMENT
+  TEMPLATE
+  TEMPLATE_DIRECT_LINK
+
+  @@schema("document_hr_sch")
+}
+
+enum DocumentVisibility {
+  EVERYONE
+  MANAGER_AND_ABOVE
+  ADMIN
+
+  @@schema("document_hr_sch")
+}
+
+enum FolderType {
+  DOCUMENT
+  TEMPLATE
+
+  @@schema("document_hr_sch")
 }
 
 model Folder {
   id         String             @id @default(cuid())
   name       String
   userId     Int
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   teamId     Int
+  team       Team               @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  pinned     Boolean            @default(false)
   parentId   String?
+  parent     Folder?            @relation("FolderToFolder", fields: [parentId], references: [id], onDelete: Cascade)
+  envelopes  Envelope[]
   createdAt  DateTime           @default(now())
   updatedAt  DateTime           @default(now()) @updatedAt
-  pinned     Boolean            @default(false)
+  subfolders Folder[]           @relation("FolderToFolder")
   visibility DocumentVisibility @default(EVERYONE)
   type       FolderType
-  envelopes  Envelope[]
-  parent     Folder?            @relation("FolderToFolder", fields: [parentId], references: [id], onDelete: Cascade)
-  subfolders Folder[]           @relation("FolderToFolder")
-  team       Team               @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([teamId])
   @@index([parentId])
   @@index([type])
+  @@schema("document_hr_sch")
+}
+
+enum EnvelopeType {
+  DOCUMENT
+  TEMPLATE
+
+  @@schema("document_hr_sch")
 }
 
 /// @zod.import(["import { ZDocumentAuthOptionsSchema } from '@documenso/lib/types/document-auth';", "import { ZDocumentFormValuesSchema } from '@documenso/lib/types/document-form-values';"])
 model Envelope {
-  id                      String              @id
-  secondaryId             String              @unique
-  /// @zod.string.describe("A custom external ID you can use to identify the document.")
-  externalId              String?
-  type                    EnvelopeType
-  createdAt               DateTime            @default(now())
-  updatedAt               DateTime            @updatedAt
-  completedAt             DateTime?
-  deletedAt               DateTime?
-  title                   String
-  status                  DocumentStatus      @default(DRAFT)
-  source                  DocumentSource
-  /// @zod.string.describe("The token for viewing the document using the QR code on the certificate.")
-  qrToken                 String?
+  id          String  @id
+  secondaryId String  @unique
+  externalId  String? /// @zod.string.describe("A custom external ID you can use to identify the document.")
+
+  type EnvelopeType
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+  deletedAt   DateTime?
+
+  title   String
+  status  DocumentStatus @default(DRAFT)
+  source  DocumentSource
+  qrToken String? /// @zod.string.describe("The token for viewing the document using the QR code on the certificate.")
+
   internalVersion         Int
-  useLegacyFieldInsertion Boolean             @default(false)
-  /// [DocumentAuthOptions] @zod.custom.use(ZDocumentAuthOptionsSchema)
-  authOptions             Json?
-  /// [DocumentFormValues] @zod.custom.use(ZDocumentFormValuesSchema)
-  formValues              Json?
-  visibility              DocumentVisibility  @default(EVERYONE)
-  templateType            TemplateType        @default(PRIVATE)
-  publicTitle             String              @default("")
-  publicDescription       String              @default("")
-  templateId              Int?
-  /// @zod.number.describe("The ID of the user that created this document.")
-  userId                  Int
-  teamId                  Int
-  folderId                String?
-  documentMetaId          String              @unique
-  auditLogs               DocumentAuditLog[]
-  shareLinks              DocumentShareLink[]
-  documentMeta            DocumentMeta        @relation(fields: [documentMetaId], references: [id])
-  folder                  Folder?             @relation(fields: [folderId], references: [id])
-  team                    Team                @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user                    User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  envelopeItems           EnvelopeItem[]
-  fields                  Field[]
-  recipients              Recipient[]
-  directLink              TemplateDirectLink?
+  useLegacyFieldInsertion Boolean @default(false)
+
+  envelopeItems EnvelopeItem[]
+  recipients    Recipient[]
+  fields        Field[]
+  shareLinks    DocumentShareLink[]
+  auditLogs     DocumentAuditLog[]
+
+  // Envelope settings
+  authOptions Json? /// [DocumentAuthOptions] @zod.custom.use(ZDocumentAuthOptionsSchema)
+  formValues  Json? /// [DocumentFormValues] @zod.custom.use(ZDocumentFormValuesSchema)
+  visibility  DocumentVisibility @default(EVERYONE)
+
+  // Template specific fields.
+  templateType      TemplateType        @default(PRIVATE)
+  publicTitle       String              @default("")
+  publicDescription String              @default("")
+  directLink        TemplateDirectLink?
+  templateId        Int?
+
+  // Relations
+  userId Int /// @zod.number.describe("The ID of the user that created this document.")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  teamId Int
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  folder   Folder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  folderId String?
+
+  documentMetaId String       @unique
+  documentMeta   DocumentMeta @relation(fields: [documentMetaId], references: [id])
+
+  @@schema("document_hr_sch")
 }
 
 model EnvelopeItem {
-  id             String       @id
-  title          String
-  documentDataId String       @unique
-  envelopeId     String
-  order          Int
+  id String @id
+
+  title String
+
+  order Int
+
+  documentDataId String
   documentData   DocumentData @relation(fields: [documentDataId], references: [id], onDelete: Cascade)
-  envelope       Envelope     @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
-  field          Field[]
+
+  envelopeId String
+  envelope   Envelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+
+  field Field[]
+
+  @@unique([documentDataId])
+  @@schema("document_hr_sch")
 }
 
 model DocumentAuditLog {
   id         String   @id @default(cuid())
+  envelopeId String
   createdAt  DateTime @default(now())
   type       String
   data       Json
-  name       String?
-  email      String?
-  userId     Int?
-  userAgent  String?
-  ipAddress  String?
-  envelopeId String
-  envelope   Envelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+
+  // Details of the person who performed the action which caused the audit log.
+  name      String?
+  email     String?
+  userId    Int?
+  userAgent String?
+  ipAddress String?
+
+  envelope Envelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+
+  @@schema("document_hr_sch")
+}
+
+enum DocumentDataType {
+  S3_PATH
+  BYTES
+  BYTES_64
+
+  @@schema("document_hr_sch")
+}
+
+enum DocumentSigningOrder {
+  PARALLEL
+  SEQUENTIAL
+
+  @@schema("document_hr_sch")
 }
 
 model DocumentData {
@@ -339,500 +538,64 @@ model DocumentData {
   data         String
   initialData  String
   envelopeItem EnvelopeItem?
-}
 
-/// @zod.import(["import { ZDocumentEmailSettingsSchema } from '@documenso/lib/types/document-email';"])
-model DocumentMeta {
-  id                     String                     @id @default(cuid())
-  message                String?
-  subject                String?
-  dateFormat             String?                    @default("yyyy-MM-dd hh:mm a")
-  timezone               String?                    @default("Etc/UTC")
-  redirectUrl            String?
-  signingOrder           DocumentSigningOrder       @default(PARALLEL)
-  typedSignatureEnabled  Boolean                    @default(true)
-  language               String                     @default("en")
-  distributionMethod     DocumentDistributionMethod @default(EMAIL)
-  /// [DocumentEmailSettings] @zod.custom.use(ZDocumentEmailSettingsSchema)
-  emailSettings          Json?
-  drawSignatureEnabled   Boolean                    @default(true)
-  uploadSignatureEnabled Boolean                    @default(true)
-  allowDictateNextSigner Boolean                    @default(false)
-  emailId                String?
-  emailReplyTo           String?
-  envelope               Envelope?
-}
-
-/// @zod.import(["import { ZRecipientAuthOptionsSchema } from '@documenso/lib/types/document-auth';"])
-model Recipient {
-  id                Int           @id @default(autoincrement())
-  email             String        @db.VarChar(255)
-  name              String        @default("") @db.VarChar(255)
-  token             String
-  expired           DateTime?
-  readStatus        ReadStatus    @default(NOT_OPENED)
-  signingStatus     SigningStatus @default(NOT_SIGNED)
-  sendStatus        SendStatus    @default(NOT_SENT)
-  signedAt          DateTime?
-  role              RecipientRole @default(SIGNER)
-  /// [RecipientAuthOptions] @zod.custom.use(ZRecipientAuthOptionsSchema)
-  authOptions       Json?
-  documentDeletedAt DateTime?
-  /// @zod.number.describe("The order in which the recipient should sign the document. Only works if the document is set to sequential signing.")
-  signingOrder      Int?
-  rejectionReason   String?
-  envelopeId        String
-  fields            Field[]
-  envelope          Envelope      @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
-  signatures        Signature[]
-
-  @@index([envelopeId])
-  @@index([token])
-}
-
-/// @zod.import(["import { ZFieldMetaNotOptionalSchema } from '@documenso/lib/types/field-meta';"])
-model Field {
-  id             Int          @id @default(autoincrement())
-  recipientId    Int
-  type           FieldType
-  /// @zod.number.describe("The page number of the field on the document. Starts from 1.")
-  page           Int
-  positionX      Decimal      @default(0)
-  positionY      Decimal      @default(0)
-  customText     String
-  inserted       Boolean
-  height         Decimal      @default(-1)
-  width          Decimal      @default(-1)
-  secondaryId    String       @unique @default(cuid())
-  /// [FieldMeta] @zod.custom.use(ZFieldMetaNotOptionalSchema)
-  fieldMeta      Json?
-  envelopeId     String
-  envelopeItemId String
-  envelope       Envelope     @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
-  envelopeItem   EnvelopeItem @relation(fields: [envelopeItemId], references: [id], onDelete: Cascade)
-  recipient      Recipient    @relation(fields: [recipientId], references: [id], onDelete: Cascade)
-  signature      Signature?
-
-  @@index([envelopeId])
-  @@index([recipientId])
-}
-
-model Signature {
-  id                     Int       @id @default(autoincrement())
-  created                DateTime  @default(now())
-  recipientId            Int
-  fieldId                Int       @unique
-  signatureImageAsBase64 String?
-  typedSignature         String?
-  field                  Field     @relation(fields: [fieldId], references: [id], onDelete: Cascade)
-  recipient              Recipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
-
-  @@index([recipientId])
-}
-
-model DocumentShareLink {
-  id         Int      @id @default(autoincrement())
-  email      String
-  slug       String   @unique
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  envelopeId String
-  envelope   Envelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
-
-  @@unique([envelopeId, email])
-}
-
-model Organisation {
-  id                                 String                           @id
-  createdAt                          DateTime                         @default(now())
-  updatedAt                          DateTime                         @updatedAt
-  type                               OrganisationType
-  name                               String
-  url                                String                           @unique
-  avatarImageId                      String?
-  customerId                         String?                          @unique
-  ownerUserId                        Int
-  organisationClaimId                String                           @unique
-  organisationGlobalSettingsId       String                           @unique
-  organisationAuthenticationPortalId String                           @unique
-  emailDomains                       EmailDomain[]
-  avatarImage                        AvatarImage?                     @relation(fields: [avatarImageId], references: [id])
-  organisationAuthenticationPortal   OrganisationAuthenticationPortal @relation(fields: [organisationAuthenticationPortalId], references: [id])
-  organisationClaim                  OrganisationClaim                @relation(fields: [organisationClaimId], references: [id])
-  organisationGlobalSettings         OrganisationGlobalSettings       @relation(fields: [organisationGlobalSettingsId], references: [id])
-  owner                              User                             @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
-  organisationEmails                 OrganisationEmail[]
-  groups                             OrganisationGroup[]
-  members                            OrganisationMember[]
-  invites                            OrganisationMemberInvite[]
-  subscription                       Subscription?
-  teams                              Team[]
-}
-
-model OrganisationMember {
-  id                       String                    @id
-  createdAt                DateTime                  @default(now())
-  updatedAt                DateTime                  @updatedAt
-  userId                   Int
-  organisationId           String
-  organisationGroupMembers OrganisationGroupMember[]
-  organisation             Organisation              @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  user                     User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, organisationId])
-}
-
-model OrganisationMemberInvite {
-  id               String                         @id
-  createdAt        DateTime                       @default(now())
-  email            String
-  token            String                         @unique
-  status           OrganisationMemberInviteStatus @default(PENDING)
-  organisationId   String
-  organisationRole OrganisationMemberRole
-  organisation     Organisation                   @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-}
-
-model OrganisationGroup {
-  id                       String                    @id
-  name                     String?
-  type                     OrganisationGroupType
-  organisationRole         OrganisationMemberRole
-  organisationId           String
-  organisation             Organisation              @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  organisationGroupMembers OrganisationGroupMember[]
-  teamGroups               TeamGroup[]
-}
-
-model OrganisationGroupMember {
-  id                   String             @id
-  groupId              String
-  organisationMemberId String
-  group                OrganisationGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  organisationMember   OrganisationMember @relation(fields: [organisationMemberId], references: [id], onDelete: Cascade)
-
-  @@unique([organisationMemberId, groupId])
-}
-
-model TeamGroup {
-  id                  String            @id
-  organisationGroupId String
-  teamRole            TeamMemberRole
-  teamId              Int
-  organisationGroup   OrganisationGroup @relation(fields: [organisationGroupId], references: [id], onDelete: Cascade)
-  team                Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
-
-  @@unique([teamId, organisationGroupId])
-}
-
-/// @zod.import(["import { ZDocumentEmailSettingsSchema } from '@documenso/lib/types/document-email';"])
-model OrganisationGlobalSettings {
-  id                        String             @id
-  documentVisibility        DocumentVisibility @default(EVERYONE)
-  documentLanguage          String             @default("en")
-  includeSenderDetails      Boolean            @default(true)
-  includeSigningCertificate Boolean            @default(true)
-  typedSignatureEnabled     Boolean            @default(true)
-  uploadSignatureEnabled    Boolean            @default(true)
-  drawSignatureEnabled      Boolean            @default(true)
-  brandingEnabled           Boolean            @default(false)
-  brandingLogo              String             @default("")
-  brandingUrl               String             @default("")
-  brandingCompanyDetails    String             @default("")
-  /// [DocumentEmailSettings] @zod.custom.use(ZDocumentEmailSettingsSchema)
-  emailDocumentSettings     Json
-  documentDateFormat        String             @default("yyyy-MM-dd hh:mm a")
-  documentTimezone          String?
-  emailId                   String?
-  emailReplyTo              String?
-  includeAuditLog           Boolean            @default(false)
-  organisation              Organisation?
-  email                     OrganisationEmail? @relation(fields: [emailId], references: [id])
-}
-
-/// @zod.import(["import { ZDocumentEmailSettingsSchema } from '@documenso/lib/types/document-email';"])
-model TeamGlobalSettings {
-  documentVisibility        DocumentVisibility?
-  includeSenderDetails      Boolean?
-  brandingCompanyDetails    String?
-  brandingEnabled           Boolean?
-  brandingLogo              String?
-  brandingUrl               String?
-  documentLanguage          String?
-  typedSignatureEnabled     Boolean?
-  includeSigningCertificate Boolean?
-  drawSignatureEnabled      Boolean?
-  uploadSignatureEnabled    Boolean?
-  id                        String              @id
-  documentDateFormat        String?
-  documentTimezone          String?
-  /// [DocumentEmailSettingsNullable] @zod.custom.use(ZDocumentEmailSettingsSchema)
-  emailDocumentSettings     Json?
-  emailId                   String?
-  emailReplyTo              String?
-  includeAuditLog           Boolean?
-  team                      Team?
-  email                     OrganisationEmail?  @relation(fields: [emailId], references: [id])
-}
-
-model Team {
-  id                   Int                    @id @default(autoincrement())
-  name                 String
-  url                  String                 @unique
-  createdAt            DateTime               @default(now())
-  avatarImageId        String?
-  organisationId       String
-  teamGlobalSettingsId String                 @unique
-  apiTokens            ApiToken[]
-  envelopes            Envelope[]
-  folders              Folder[]
-  avatarImage          AvatarImage?           @relation(fields: [avatarImageId], references: [id])
-  organisation         Organisation           @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  teamGlobalSettings   TeamGlobalSettings     @relation(fields: [teamGlobalSettingsId], references: [id], onDelete: Cascade)
-  teamEmail            TeamEmail?
-  emailVerification    TeamEmailVerification?
-  teamGroups           TeamGroup[]
-  profile              TeamProfile?
-  webhooks             Webhook[]
-}
-
-model TeamEmail {
-  teamId    Int      @id @unique
-  createdAt DateTime @default(now())
-  name      String
-  email     String   @unique
-  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-}
-
-model TeamEmailVerification {
-  teamId    Int      @id @unique
-  name      String
-  email     String
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  completed Boolean  @default(false)
-  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-}
-
-model TemplateDirectLink {
-  id                        String   @id @unique @default(cuid())
-  token                     String   @unique
-  createdAt                 DateTime @default(now())
-  enabled                   Boolean
-  directTemplateRecipientId Int
-  envelopeId                String   @unique
-  envelope                  Envelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
-}
-
-model SiteSettings {
-  id                   String   @id
-  enabled              Boolean  @default(false)
-  data                 Json
-  lastModifiedByUserId Int?
-  lastModifiedAt       DateTime @default(now())
-  lastModifiedByUser   User?    @relation(fields: [lastModifiedByUserId], references: [id])
-}
-
-model BackgroundJob {
-  id            String              @id @default(cuid())
-  status        BackgroundJobStatus @default(PENDING)
-  retried       Int                 @default(0)
-  maxRetries    Int                 @default(3)
-  jobId         String
-  name          String
-  version       String
-  submittedAt   DateTime            @default(now())
-  lastRetriedAt DateTime?
-  completedAt   DateTime?
-  updatedAt     DateTime            @updatedAt
-  payload       Json?
-  tasks         BackgroundJobTask[]
-}
-
-model BackgroundJobTask {
-  id            String                  @id
-  status        BackgroundJobTaskStatus @default(PENDING)
-  result        Json?
-  retried       Int                     @default(0)
-  maxRetries    Int                     @default(3)
-  createdAt     DateTime                @default(now())
-  updatedAt     DateTime                @updatedAt
-  jobId         String
-  completedAt   DateTime?
-  name          String
-  backgroundJob BackgroundJob           @relation(fields: [jobId], references: [id], onDelete: Cascade)
-}
-
-model AvatarImage {
-  id           String         @id @default(cuid())
-  bytes        String
-  organisation Organisation[]
-  team         Team[]
-  user         User[]
-}
-
-model EmailDomain {
-  id             String              @id
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-  status         EmailDomainStatus   @default(PENDING)
-  selector       String              @unique
-  domain         String              @unique
-  publicKey      String
-  privateKey     String
-  organisationId String
-  organisation   Organisation        @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  emails         OrganisationEmail[]
-}
-
-model OrganisationEmail {
-  id                         String                       @id
-  createdAt                  DateTime                     @default(now())
-  updatedAt                  DateTime                     @updatedAt
-  email                      String                       @unique
-  emailName                  String
-  emailDomainId              String
-  organisationId             String
-  emailDomain                EmailDomain                  @relation(fields: [emailDomainId], references: [id], onDelete: Cascade)
-  organisation               Organisation                 @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  organisationGlobalSettings OrganisationGlobalSettings[]
-  teamGlobalSettings         TeamGlobalSettings[]
-}
-
-model OrganisationAuthenticationPortal {
-  id                      String                 @id
-  enabled                 Boolean                @default(false)
-  clientId                String                 @default("")
-  clientSecret            String                 @default("")
-  wellKnownUrl            String                 @default("")
-  defaultOrganisationRole OrganisationMemberRole @default(MEMBER)
-  autoProvisionUsers      Boolean                @default(true)
-  allowedDomains          String[]               @default([])
-  organisation            Organisation?
-}
-
-model Counter {
-  id    String @id
-  value Int
-}
-
-enum IdentityProvider {
-  DOCUMENSO
-  GOOGLE
-  OIDC
-}
-
-enum Role {
-  ADMIN
-  USER
-}
-
-enum UserSecurityAuditLogType {
-  ACCOUNT_PROFILE_UPDATE
-  ACCOUNT_SSO_LINK
-  AUTH_2FA_DISABLE
-  AUTH_2FA_ENABLE
-  PASSWORD_RESET
-  PASSWORD_UPDATE
-  SIGN_OUT
-  SIGN_IN
-  SIGN_IN_FAIL
-  SIGN_IN_2FA_FAIL
-  PASSKEY_CREATED
-  PASSKEY_DELETED
-  PASSKEY_UPDATED
-  SIGN_IN_PASSKEY_FAIL
-  SESSION_REVOKED
-  ACCOUNT_SSO_UNLINK
-  ORGANISATION_SSO_LINK
-  ORGANISATION_SSO_UNLINK
-}
-
-enum WebhookTriggerEvents {
-  DOCUMENT_CREATED
-  DOCUMENT_SIGNED
-  DOCUMENT_SENT
-  DOCUMENT_OPENED
-  DOCUMENT_COMPLETED
-  DOCUMENT_REJECTED
-  DOCUMENT_CANCELLED
-}
-
-enum WebhookCallStatus {
-  SUCCESS
-  FAILED
-}
-
-enum ApiTokenAlgorithm {
-  SHA512
-}
-
-enum SubscriptionStatus {
-  ACTIVE
-  INACTIVE
-  PAST_DUE
-}
-
-enum DocumentStatus {
-  DRAFT
-  PENDING
-  COMPLETED
-  REJECTED
-}
-
-enum DocumentSource {
-  DOCUMENT
-  TEMPLATE
-  TEMPLATE_DIRECT_LINK
-}
-
-enum DocumentVisibility {
-  EVERYONE
-  MANAGER_AND_ABOVE
-  ADMIN
-}
-
-enum FolderType {
-  DOCUMENT
-  TEMPLATE
-}
-
-enum EnvelopeType {
-  DOCUMENT
-  TEMPLATE
-}
-
-enum DocumentDataType {
-  S3_PATH
-  BYTES
-  BYTES_64
-}
-
-enum DocumentSigningOrder {
-  PARALLEL
-  SEQUENTIAL
+  @@schema("document_hr_sch")
 }
 
 enum DocumentDistributionMethod {
   EMAIL
   NONE
+
+  @@schema("document_hr_sch")
+}
+
+/// @zod.import(["import { ZDocumentEmailSettingsSchema } from '@documenso/lib/types/document-email';"])
+model DocumentMeta {
+  id                     String               @id @default(cuid())
+  subject                String?
+  message                String?
+  timezone               String?              @default("Etc/UTC") @db.Text
+  dateFormat             String?              @default("yyyy-MM-dd hh:mm a") @db.Text
+  redirectUrl            String?
+  signingOrder           DocumentSigningOrder @default(PARALLEL)
+  allowDictateNextSigner Boolean              @default(false)
+
+  typedSignatureEnabled  Boolean @default(true)
+  uploadSignatureEnabled Boolean @default(true)
+  drawSignatureEnabled   Boolean @default(true)
+
+  language           String                     @default("en")
+  distributionMethod DocumentDistributionMethod @default(EMAIL)
+
+  emailSettings Json? /// [DocumentEmailSettings] @zod.custom.use(ZDocumentEmailSettingsSchema)
+  emailReplyTo  String?
+  emailId       String?
+
+  envelope Envelope?
+
+  @@schema("document_hr_sch")
 }
 
 enum ReadStatus {
   NOT_OPENED
   OPENED
+
+  @@schema("document_hr_sch")
 }
 
 enum SendStatus {
   NOT_SENT
   SENT
+
+  @@schema("document_hr_sch")
 }
 
 enum SigningStatus {
   NOT_SIGNED
   SIGNED
   REJECTED
+
+  @@schema("document_hr_sch")
 }
 
 enum RecipientRole {
@@ -841,54 +604,410 @@ enum RecipientRole {
   VIEWER
   APPROVER
   ASSISTANT
+
+  @@schema("document_hr_sch")
+}
+
+/// @zod.import(["import { ZRecipientAuthOptionsSchema } from '@documenso/lib/types/document-auth';"])
+model Recipient {
+  id                Int           @id @default(autoincrement())
+  envelopeId        String
+  email             String        @db.VarChar(255)
+  name              String        @default("") @db.VarChar(255)
+  token             String
+  documentDeletedAt DateTime?
+  expired           DateTime?
+  signedAt          DateTime?
+  authOptions       Json? /// [RecipientAuthOptions] @zod.custom.use(ZRecipientAuthOptionsSchema)
+  signingOrder      Int? /// @zod.number.describe("The order in which the recipient should sign the document. Only works if the document is set to sequential signing.")
+  rejectionReason   String?
+  role              RecipientRole @default(SIGNER)
+  readStatus        ReadStatus    @default(NOT_OPENED)
+  signingStatus     SigningStatus @default(NOT_SIGNED)
+  sendStatus        SendStatus    @default(NOT_SENT)
+  envelope          Envelope      @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  fields            Field[]
+  signatures        Signature[]
+
+  @@index([envelopeId])
+  @@index([token])
+  @@schema("document_hr_sch")
 }
 
 enum FieldType {
   SIGNATURE
   FREE_SIGNATURE
-  DATE
-  TEXT
+  INITIALS
   NAME
   EMAIL
+  DATE
+  TEXT
   NUMBER
   RADIO
   CHECKBOX
   DROPDOWN
-  INITIALS
+
+  @@schema("document_hr_sch")
+}
+
+/// @zod.import(["import { ZFieldMetaNotOptionalSchema } from '@documenso/lib/types/field-meta';"])
+model Field {
+  id             Int          @id @default(autoincrement())
+  secondaryId    String       @unique @default(cuid())
+  envelopeId     String
+  envelopeItemId String
+  recipientId    Int
+  type           FieldType
+  page           Int /// @zod.number.describe("The page number of the field on the document. Starts from 1.")
+  positionX      Decimal      @default(0)
+  positionY      Decimal      @default(0)
+  width          Decimal      @default(-1)
+  height         Decimal      @default(-1)
+  customText     String
+  inserted       Boolean
+  envelopeItem   EnvelopeItem @relation(fields: [envelopeItemId], references: [id], onDelete: Cascade)
+  envelope       Envelope     @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  recipient      Recipient    @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  signature      Signature?
+  fieldMeta      Json? /// [FieldMeta] @zod.custom.use(ZFieldMetaNotOptionalSchema)
+
+  @@index([envelopeId])
+  @@index([recipientId])
+  @@schema("document_hr_sch")
+}
+
+model Signature {
+  id                     Int      @id @default(autoincrement())
+  created                DateTime @default(now())
+  recipientId            Int
+  fieldId                Int      @unique
+  signatureImageAsBase64 String?
+  typedSignature         String?
+
+  recipient Recipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  field     Field     @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId])
+  @@schema("document_hr_sch")
+}
+
+model DocumentShareLink {
+  id         Int      @id @default(autoincrement())
+  email      String
+  slug       String   @unique
+  envelopeId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  envelope Envelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+
+  @@unique([envelopeId, email])
+  @@schema("document_hr_sch")
 }
 
 enum OrganisationType {
   PERSONAL
   ORGANISATION
+
+  @@schema("document_hr_sch")
+}
+
+model Organisation {
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  type          OrganisationType
+  name          String
+  url           String           @unique
+  avatarImageId String?
+
+  customerId   String?       @unique
+  subscription Subscription?
+
+  organisationClaimId String            @unique
+  organisationClaim   OrganisationClaim @relation(fields: [organisationClaimId], references: [id])
+
+  members OrganisationMember[]
+  invites OrganisationMemberInvite[]
+  groups  OrganisationGroup[]
+
+  teams Team[]
+
+  emailDomains       EmailDomain[]
+  organisationEmails OrganisationEmail[]
+
+  avatarImage AvatarImage? @relation(fields: [avatarImageId], references: [id], onDelete: SetNull)
+
+  ownerUserId Int
+  owner       User @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+
+  organisationGlobalSettingsId String                     @unique
+  organisationGlobalSettings   OrganisationGlobalSettings @relation(fields: [organisationGlobalSettingsId], references: [id])
+
+  organisationAuthenticationPortalId String                           @unique
+  organisationAuthenticationPortal   OrganisationAuthenticationPortal @relation(fields: [organisationAuthenticationPortalId], references: [id])
+
+  @@schema("document_hr_sch")
+}
+
+model OrganisationMember {
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  organisationGroupMembers OrganisationGroupMember[]
+
+  @@unique([userId, organisationId])
+  @@schema("document_hr_sch")
+}
+
+model OrganisationMemberInvite {
+  id        String   @id
+  createdAt DateTime @default(now())
+
+  email String
+  token String @unique
+
+  status OrganisationMemberInviteStatus @default(PENDING)
+
+  organisationId   String
+  organisation     Organisation           @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  organisationRole OrganisationMemberRole
+
+  @@schema("document_hr_sch")
+}
+
+model OrganisationGroup {
+  id   String  @id
+  name String?
+
+  type             OrganisationGroupType
+  organisationRole OrganisationMemberRole
+
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  organisationGroupMembers OrganisationGroupMember[]
+
+  teamGroups TeamGroup[]
+
+  @@schema("document_hr_sch")
+}
+
+model OrganisationGroupMember {
+  id String @id
+
+  groupId String
+  group   OrganisationGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  organisationMember   OrganisationMember @relation(fields: [organisationMemberId], references: [id], onDelete: Cascade)
+  organisationMemberId String
+
+  @@unique([organisationMemberId, groupId])
+  @@schema("document_hr_sch")
+}
+
+model TeamGroup {
+  id String @id
+
+  organisationGroupId String
+  organisationGroup   OrganisationGroup @relation(fields: [organisationGroupId], references: [id], onDelete: Cascade)
+
+  teamRole TeamMemberRole
+
+  teamId Int
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, organisationGroupId])
+  @@schema("document_hr_sch")
 }
 
 enum OrganisationGroupType {
   INTERNAL_ORGANISATION
   INTERNAL_TEAM
   CUSTOM
+
+  @@schema("document_hr_sch")
 }
 
 enum OrganisationMemberRole {
   ADMIN
   MANAGER
   MEMBER
+
+  @@schema("document_hr_sch")
 }
 
 enum TeamMemberRole {
   ADMIN
   MANAGER
   MEMBER
+
+  @@schema("document_hr_sch")
 }
 
 enum OrganisationMemberInviteStatus {
   ACCEPTED
   PENDING
   DECLINED
+
+  @@schema("document_hr_sch")
+}
+
+/// @zod.import(["import { ZDocumentEmailSettingsSchema } from '@documenso/lib/types/document-email';"])
+model OrganisationGlobalSettings {
+  id           String        @id
+  organisation Organisation?
+
+  documentVisibility        DocumentVisibility @default(EVERYONE)
+  documentLanguage          String             @default("en")
+  includeSenderDetails      Boolean            @default(true)
+  includeSigningCertificate Boolean            @default(true)
+  includeAuditLog           Boolean            @default(false)
+  documentTimezone          String? // Nullable to allow using local timezones if not set.
+  documentDateFormat        String             @default("yyyy-MM-dd hh:mm a")
+
+  typedSignatureEnabled  Boolean @default(true)
+  uploadSignatureEnabled Boolean @default(true)
+  drawSignatureEnabled   Boolean @default(true)
+
+  emailId String?
+  email   OrganisationEmail? @relation(fields: [emailId], references: [id])
+
+  emailReplyTo          String?
+  // emailReplyToName      String? // Placeholder for future feature.
+  emailDocumentSettings Json /// [DocumentEmailSettings] @zod.custom.use(ZDocumentEmailSettingsSchema)
+
+  brandingEnabled        Boolean @default(false)
+  brandingLogo           String  @default("")
+  brandingUrl            String  @default("")
+  brandingCompanyDetails String  @default("")
+
+  @@schema("document_hr_sch")
+}
+
+/// @zod.import(["import { ZDocumentEmailSettingsSchema } from '@documenso/lib/types/document-email';"])
+model TeamGlobalSettings {
+  id   String @id
+  team Team?
+
+  documentVisibility DocumentVisibility?
+  documentLanguage   String?
+  documentTimezone   String?
+  documentDateFormat String?
+
+  includeSenderDetails      Boolean?
+  includeSigningCertificate Boolean?
+  includeAuditLog           Boolean?
+
+  typedSignatureEnabled  Boolean?
+  uploadSignatureEnabled Boolean?
+  drawSignatureEnabled   Boolean?
+
+  emailId String?
+  email   OrganisationEmail? @relation(fields: [emailId], references: [id])
+
+  emailReplyTo          String?
+  // emailReplyToName      String? // Placeholder for future feature.
+  emailDocumentSettings Json? /// [DocumentEmailSettingsNullable] @zod.custom.use(ZDocumentEmailSettingsSchema)
+
+  brandingEnabled        Boolean?
+  brandingLogo           String?
+  brandingUrl            String?
+  brandingCompanyDetails String?
+
+  @@schema("document_hr_sch")
+}
+
+model Team {
+  id            Int      @id @default(autoincrement())
+  name          String
+  url           String   @unique
+  createdAt     DateTime @default(now())
+  avatarImageId String?
+
+  teamEmail         TeamEmail?
+  emailVerification TeamEmailVerification?
+  avatarImage       AvatarImage?           @relation(fields: [avatarImageId], references: [id], onDelete: SetNull)
+
+  profile TeamProfile?
+
+  envelopes  Envelope[]
+  folders    Folder[]
+  apiTokens  ApiToken[]
+  webhooks   Webhook[]
+  teamGroups TeamGroup[]
+
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  teamGlobalSettingsId String             @unique
+  teamGlobalSettings   TeamGlobalSettings @relation(fields: [teamGlobalSettingsId], references: [id], onDelete: Cascade)
+
+  @@schema("document_hr_sch")
+}
+
+model TeamEmail {
+  teamId    Int      @id @unique
+  createdAt DateTime @default(now())
+  name      String
+  email     String   @unique
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@schema("document_hr_sch")
+}
+
+model TeamEmailVerification {
+  teamId    Int      @id @unique
+  name      String
+  email     String
+  token     String   @unique
+  completed Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@schema("document_hr_sch")
 }
 
 enum TemplateType {
   PUBLIC
   PRIVATE
+
+  @@schema("document_hr_sch")
+}
+
+model TemplateDirectLink {
+  id         String   @id @unique @default(cuid())
+  envelopeId String   @unique
+  token      String   @unique
+  createdAt  DateTime @default(now())
+  enabled    Boolean
+
+  directTemplateRecipientId Int
+
+  envelope Envelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+
+  @@schema("document_hr_sch")
+}
+
+model SiteSettings {
+  id                   String   @id
+  enabled              Boolean  @default(false)
+  data                 Json
+  lastModifiedByUserId Int?
+  lastModifiedAt       DateTime @default(now())
+  lastModifiedByUser   User?    @relation(fields: [lastModifiedByUserId], references: [id], onDelete: SetNull)
+
+  @@schema("document_hr_sch")
 }
 
 enum BackgroundJobStatus {
@@ -896,15 +1015,138 @@ enum BackgroundJobStatus {
   PROCESSING
   COMPLETED
   FAILED
+
+  @@schema("document_hr_sch")
+}
+
+model BackgroundJob {
+  id         String              @id @default(cuid())
+  status     BackgroundJobStatus @default(PENDING)
+  payload    Json?
+  retried    Int                 @default(0)
+  maxRetries Int                 @default(3)
+
+  // Taken from the job definition
+  jobId   String
+  name    String
+  version String
+
+  submittedAt   DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  completedAt   DateTime?
+  lastRetriedAt DateTime?
+
+  tasks BackgroundJobTask[]
+
+  @@schema("document_hr_sch")
 }
 
 enum BackgroundJobTaskStatus {
   PENDING
   COMPLETED
   FAILED
+
+  @@schema("document_hr_sch")
+}
+
+model BackgroundJobTask {
+  id     String                  @id
+  name   String
+  status BackgroundJobTaskStatus @default(PENDING)
+
+  result     Json?
+  retried    Int   @default(0)
+  maxRetries Int   @default(3)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  jobId         String
+  backgroundJob BackgroundJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@schema("document_hr_sch")
+}
+
+model AvatarImage {
+  id    String @id @default(cuid())
+  bytes String
+
+  team         Team[]
+  user         User[]
+  organisation Organisation[]
+
+  @@schema("document_hr_sch")
 }
 
 enum EmailDomainStatus {
   PENDING
   ACTIVE
+
+  @@schema("document_hr_sch")
+}
+
+model EmailDomain {
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  status EmailDomainStatus @default(PENDING)
+
+  selector   String @unique
+  domain     String @unique
+  publicKey  String
+  privateKey String
+
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  emails OrganisationEmail[]
+
+  @@schema("document_hr_sch")
+}
+
+model OrganisationEmail {
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email     String @unique
+  emailName String
+  // replyTo   String?
+
+  emailDomainId String
+  emailDomain   EmailDomain @relation(fields: [emailDomainId], references: [id], onDelete: Cascade)
+
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  organisationGlobalSettings OrganisationGlobalSettings[]
+  teamGlobalSettings         TeamGlobalSettings[]
+
+  @@schema("document_hr_sch")
+}
+
+model OrganisationAuthenticationPortal {
+  id           String        @id
+  organisation Organisation?
+
+  enabled Boolean @default(false)
+
+  clientId     String @default("")
+  clientSecret String @default("")
+  wellKnownUrl String @default("")
+
+  defaultOrganisationRole OrganisationMemberRole @default(MEMBER)
+  autoProvisionUsers      Boolean                @default(true)
+  allowedDomains          String[]               @default([])
+
+  @@schema("document_hr_sch")
+}
+
+model Counter {
+  id    String @id
+  value Int
+
+  @@schema("document_hr_sch")
 }
