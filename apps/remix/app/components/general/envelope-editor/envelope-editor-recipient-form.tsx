@@ -28,6 +28,7 @@ import {
 } from '@documenso/lib/types/document-auth';
 import { nanoid } from '@documenso/lib/universal/id';
 import { canRecipientBeModified as utilCanRecipientBeModified } from '@documenso/lib/utils/recipients';
+import { checkEmailExistsInDatabase } from '@documenso/prisma/utils/email';
 import { trpc } from '@documenso/trpc/react';
 import { AnimateGenericFadeInOut } from '@documenso/ui/components/animate/animate-generic-fade-in-out';
 import { RecipientActionAuthSelect } from '@documenso/ui/components/recipient/recipient-action-auth-select';
@@ -68,7 +69,13 @@ const ZEnvelopeRecipientsForm = z.object({
       email: z
         .string()
         .email({ message: msg`Invalid email`.id })
-        .min(1),
+        .min(1)
+        .refine(
+          async (email) => {
+            return await checkEmailExistsInDatabase(email);
+          },
+          { message: 'Email does not exist in our system' },
+        ),
       name: z.string(),
       role: z.nativeEnum(RecipientRole),
       signingOrder: z.number().optional(),
