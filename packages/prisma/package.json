@@ -11,6 +11,7 @@
     "clean": "rimraf node_modules",
     "post-install": "prisma generate",
     "prisma:generate": "prisma generate",
+    "prisma:pull": "prisma db pull",
     "prisma:migrate-dev": "prisma migrate dev --skip-seed",
     "prisma:migrate-deploy": "prisma migrate deploy",
     "prisma:migrate-reset": "prisma migrate reset",

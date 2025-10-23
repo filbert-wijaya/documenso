@@ -1,5 +1,11 @@
+import dotenv from 'dotenv';
+// console.log('Loaded DB URL:', process.env.NEXT_PRIVATE_DATABASE_URL);
 import fs from 'node:fs';
 import path from 'node:path';
+import p from 'path';
+
+// Adjust path if your .env is in the root folder of the repo
+dotenv.config({ path: p.resolve(__dirname, '../../.env') });
 
 const seedDatabase = async () => {
   const files = fs.readdirSync(path.join(__dirname, './seed'));

@@ -1,5 +1,8 @@
+import dotenv from 'dotenv';
+// console.log('Loaded DB URL:', process.env.NEXT_PRIVATE_DATABASE_URL);
 import fs from 'node:fs';
 import path from 'node:path';
+import p from 'path';
 
 import { incrementDocumentId } from '@documenso/lib/server-only/envelope/increment-id';
 import { prefixedId } from '@documenso/lib/universal/id';
@@ -9,6 +12,9 @@ import { DocumentDataType, DocumentSource, EnvelopeType } from '../client';
 import { seedPendingDocument } from './documents';
 import { seedDirectTemplate, seedTemplate } from './templates';
 import { seedUser } from './users';
+
+// Adjust path if your .env is in the root folder of the repo
+dotenv.config({ path: p.resolve(__dirname, '../../../.env') });
 
 const createDocumentData = async ({ documentData }: { documentData: string }) => {
   return prisma.documentData.create({
