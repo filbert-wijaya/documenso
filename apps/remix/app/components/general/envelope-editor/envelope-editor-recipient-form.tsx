@@ -467,14 +467,6 @@ export const EnvelopeEditorRecipientForm = () => {
 
       setRecipientsDebounced(validatedFormValues.data.signers);
 
-      // backend validation (tRPC + Prisma)
-      // validatedFormValues.data.signers.forEach(async (signer) => {
-      //   const res = trpc.user.checkEmail.useQuery({ email: signer.email }, { enabled: !!signer.email });
-
-      //   if (res.data?.exists === false) {
-      //     console.warn(`Email ${signer.email} not found in database`);
-      // You could set a form error or UI message here
-
       // Todo: Envelopes - Need to save the other data as well
       // setEnvelope
     }
