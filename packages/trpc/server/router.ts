@@ -15,6 +15,8 @@ import { templateRouter } from './template-router/router';
 import { router } from './trpc';
 import { webhookRouter } from './webhook-router/router';
 
+// import { userRouter } from './email-validation-router/router';
+
 export const appRouter = router({
   enterprise: enterpriseRouter,
   envelope: envelopeRouter,
@@ -31,6 +33,7 @@ export const appRouter = router({
   template: templateRouter,
   webhook: webhookRouter,
   embeddingPresign: embeddingPresignRouter,
+  // user: userRouter,
 });
 
 export type AppRouter = typeof appRouter;

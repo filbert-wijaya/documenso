@@ -28,7 +28,6 @@ import {
 } from '@documenso/lib/types/document-auth';
 import { nanoid } from '@documenso/lib/universal/id';
 import { canRecipientBeModified as utilCanRecipientBeModified } from '@documenso/lib/utils/recipients';
-import { checkEmailExistsInDatabase } from '@documenso/prisma/utils/email';
 import { trpc } from '@documenso/trpc/react';
 import { AnimateGenericFadeInOut } from '@documenso/ui/components/animate/animate-generic-fade-in-out';
 import { RecipientActionAuthSelect } from '@documenso/ui/components/recipient/recipient-action-auth-select';
@@ -69,13 +68,7 @@ const ZEnvelopeRecipientsForm = z.object({
       email: z
         .string()
         .email({ message: msg`Invalid email`.id })
-        .min(1)
-        .refine(
-          async (email) => {
-            return await checkEmailExistsInDatabase(email);
-          },
-          { message: 'Email does not exist in our system' },
-        ),
+        .min(1),
       name: z.string(),
       role: z.nativeEnum(RecipientRole),
       signingOrder: z.number().optional(),
@@ -474,6 +467,14 @@ export const EnvelopeEditorRecipientForm = () => {
 
       setRecipientsDebounced(validatedFormValues.data.signers);
 
+      // backend validation (tRPC + Prisma)
+      // validatedFormValues.data.signers.forEach(async (signer) => {
+      //   const res = trpc.user.checkEmail.useQuery({ email: signer.email }, { enabled: !!signer.email });
+
+      //   if (res.data?.exists === false) {
+      //     console.warn(`Email ${signer.email} not found in database`);
+      // You could set a form error or UI message here
+
       // Todo: Envelopes - Need to save the other data as well
       // setEnvelope
     }
@@ -777,6 +778,29 @@ export const EnvelopeEditorRecipientForm = () => {
                                         loading={isLoading}
                                         data-testid="signer-email-input"
                                         maxLength={254}
+                                        // onBlur={async () => {
+                                        //   field.onBlur();
+
+                                        //   if (!field.value) return;
+
+                                        //   try {
+                                        //     const res = trpc.user.checkEmail.useQuery({ email: field.value });
+
+                                        //     if (!res.data?.exists) {
+                                        //       console.log('No data');
+                                        //       form.setError(`signers.${index}.email`, {
+                                        //         type: 'manual',
+                                        //         message: t`This email is already a recipient`,
+                                        //       });
+                                        //     }
+                                        //   } catch (err) {
+                                        //     console.error(err);
+                                        //     form.setError(`signers.${index}.email`, {
+                                        //       type: 'manual',
+                                        //       message: t`Error validating email`,
+                                        //     });
+                                        //   }
+                                        // }}
                                       />
                                     </FormControl>
 

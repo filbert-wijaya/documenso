@@ -86,7 +86,7 @@ model Employee {
   employee_no   String
   department_id Int
   branch_id     Int
-  isActive      Boolean   @default(true)
+  active      Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
 

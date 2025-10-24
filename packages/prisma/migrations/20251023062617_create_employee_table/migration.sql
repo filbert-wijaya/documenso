@@ -5,7 +5,7 @@ CREATE TABLE "core_hr_sch"."Employee" (
     "employee_no" TEXT NOT NULL,
     "department_id" INTEGER NOT NULL,
     "branch_id" INTEGER NOT NULL,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "active" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
