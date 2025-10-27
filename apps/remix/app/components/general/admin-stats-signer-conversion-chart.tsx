@@ -38,18 +38,18 @@ export const AdminStatsSignerConversionChart = ({
 
             <Tooltip
               labelStyle={{
-                color: 'hsl(var(--primary-foreground))',
+                color: 'var(--primary-foreground)',
               }}
               formatter={(value, name) => [
                 Number(value).toLocaleString('en-US'),
                 name === 'Recipients',
               ]}
-              cursor={{ fill: 'hsl(var(--primary) / 10%)' }}
+              cursor={{ fill: 'var(--primary-10)' }}
             />
 
             <Bar
               dataKey={cummulative ? 'signed_count' : 'count'}
-              fill="hsl(var(--primary))"
+              fill="var(--primary)"
               radius={[4, 4, 0, 0]}
               maxBarSize={60}
               label="Recipients"

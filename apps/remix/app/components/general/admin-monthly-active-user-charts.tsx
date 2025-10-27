@@ -54,11 +54,11 @@ export const MonthlyActiveUsersChart = ({
             <XAxis dataKey="month" />
             <YAxis />
 
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--primary) / 10%)' }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--primary-10)' }} />
 
             <Bar
               dataKey={cummulative ? 'cume_count' : 'count'}
-              fill="hsl(var(--primary))"
+              fill="var(--primary)"
               radius={[4, 4, 0, 0]}
               maxBarSize={60}
               label={cummulative ? 'Cumulative MAU' : 'Monthly Active Users'}

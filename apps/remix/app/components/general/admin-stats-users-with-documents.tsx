@@ -73,14 +73,14 @@ export const AdminStatsUsersWithDocumentsChart = ({
             <Tooltip
               content={<CustomTooltip tooltip={tooltip} />}
               labelStyle={{
-                color: 'hsl(var(--primary-foreground))',
+                color: 'var(--primary-foreground)',
               }}
-              cursor={{ fill: 'hsl(var(--primary) / 10%)' }}
+              cursor={{ fill: 'var(--primary-10)' }}
             />
 
             <Bar
               dataKey="count"
-              fill="hsl(var(--primary))"
+              fill="var(--primary)"
               radius={[4, 4, 0, 0]}
               maxBarSize={60}
               label={tooltip}

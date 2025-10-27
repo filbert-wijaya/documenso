@@ -29,8 +29,8 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
 
-    --primary: 95.08 71.08% 67.45%;
-    --primary-foreground: 95.08 71.08% 10%;
+    --primary: #009ef7;
+    --primary-foreground: #ffffff;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -162,8 +162,10 @@
 
     --field-border: 214.3 31.8% 91.4%;
 
-    --primary: 95.08 71.08% 67.45%;
-    --primary-foreground: 95.08 71.08% 10%;
+    --primary: #009ef7;
+    --primary-foreground: #ffffff;
+
+    --primary-10: rgba(0, 158, 247, 0.1);
 
     --secondary: 0 0% 23.4%;
     --secondary-foreground: 95.08 71.08% 67.45%;
