@@ -11,6 +11,7 @@ import { Input } from '../../primitives/input';
 export type RecipientAutoCompleteOption = {
   email: string;
   name: string | null;
+  department_name: string | null;
 };
 
 type RecipientAutoCompleteInputProps = {
@@ -94,7 +95,7 @@ export const RecipientAutoCompleteInput = ({
                   className="cursor-pointer"
                   onSelect={() => handleSelectItem(option)}
                 >
-                  {option.name} ({option.email})
+                  {option.email || '-'} | {option.name || '-'} | {option.department_name || '-'}
                 </CommandItem>
               ))}
             </CommandGroup>

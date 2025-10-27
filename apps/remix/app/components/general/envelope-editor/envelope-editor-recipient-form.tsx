@@ -110,7 +110,12 @@ export const EnvelopeEditorRecipientForm = () => {
     },
   );
 
-  const recipientSuggestions = recipientSuggestionsData?.results || [];
+  const recipientSuggestions: RecipientAutoCompleteOption[] =
+    recipientSuggestionsData?.results.map((r) => ({
+      email: r.email,
+      name: r.name,
+      department_name: r.department_name, // now exists
+    })) || [];
 
   const defaultRecipients = [
     {

@@ -28,7 +28,6 @@ datasource db {
 
 model User {
   id                   Int                    @id @default(autoincrement())
-  user_id              String?                 @unique
   name                 String?
   email                String                 @unique
   emailVerified        DateTime?
@@ -60,37 +59,55 @@ model User {
   verificationTokens   VerificationToken[]
   webhooks             Webhook[]
 
-  core_user            CoreUser?               @relation(fields: [user_id], references: [id])
-
   @@index([email])
   @@schema("document_hr_sch")
 }
 
 model CoreUser {
-  id        String   @id @default(uuid())
-  firstName String
-  lastName  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  employee  Employee?
-  document_user User?
+  id            String    @id @default(uuid())
+  firstName     String
+  lastName      String?
+  email         String    @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+  employee      Employee?
 
   @@map("User")
   @@schema("core_hr_sch")
 }
 
 model Employee {
-  id            Int       @id @default(autoincrement())
-  user_id       String    @unique
+  id            Int        @id @default(autoincrement())
+  user_id       String     @unique
   employee_no   String
   department_id Int
   branch_id     Int
-  active      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
+  active        Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @default(now()) @updatedAt
+  department    Department @relation(fields: [department_id], references: [id])
+  branch        Branch     @relation(fields: [branch_id], references: [id])
+  user          CoreUser   @relation(fields: [user_id], references: [id])
 
-  user          CoreUser  @relation(fields: [user_id], references: [id])
+  @@schema("core_hr_sch")
+}
+
+model Department {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now()) @updatedAt
+  employee  Employee[]
+
+  @@schema("core_hr_sch")
+}
+
+model Branch {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now()) @updatedAt
+  employee  Employee[]
 
   @@schema("core_hr_sch")
 }
