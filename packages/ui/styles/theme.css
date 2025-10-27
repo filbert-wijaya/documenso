@@ -32,6 +32,8 @@
     --primary: #009ef7;
     --primary-foreground: #ffffff;
 
+    --primary-10: rgba(0, 158, 247, 0.1);
+
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
@@ -41,7 +43,7 @@
     --destructive: 0 100% 50%;
     --destructive-foreground: 210 40% 98%;
 
-    --ring: 95.08 71.08% 67.45%;
+    --ring: 204 100% 48%;
 
     --radius: 0.5rem;
 
@@ -167,16 +169,16 @@
 
     --primary-10: rgba(0, 158, 247, 0.1);
 
-    --secondary: 0 0% 23.4%;
-    --secondary-foreground: 95.08 71.08% 67.45%;
+    --secondary: 210 80% 60%;
+    --secondary-foreground: 0 0% 100%;
 
-    --accent: 0 0% 27.9%;
-    --accent-foreground: 95.08 71.08% 67.45%;
+    --accent: 210 100% 65%;
+    --accent-foreground: 210 40% 90%;
 
     --destructive: 0 87% 62%;
     --destructive-foreground: 0 87% 19%;
 
-    --ring: 95.08 71.08% 67.45%;
+    --ring: 204 100% 65%;
 
     --radius: 0.5rem;
 
