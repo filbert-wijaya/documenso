@@ -131,7 +131,7 @@ export const TemplatePageViewRecentActivity = ({
                 </Link>
 
                 <time className="text-muted-foreground dark:text-muted-foreground/70 flex-none py-0.5 text-xs leading-5">
-                  {DateTime.fromJSDate(document.createdAt).toRelative({ style: 'short' })}
+                  {DateTime.fromJSDate(document.createdAt).toFormat('yyyy-MM-dd HH:mm:ss')}
                 </time>
               </li>
             ))}

@@ -19,15 +19,26 @@ export const DEFAULT_RECT_BACKGROUND = 'rgba(255, 255, 255, 0.95)';
 
 // !: values of the declared variable to do all the background, border and shadow styles.
 export const RECIPIENT_COLOR_STYLES = {
-  readOnly: {
-    base: 'ring-neutral-400',
-    baseRing: 'rgba(176, 176, 176, 1)',
-    baseRingHover: 'rgba(176, 176, 176, 1)',
+  blue: {
+    base: 'ring-recipient-blue hover:bg-recipient-blue/30',
+    baseRing: 'rgba(56, 123, 199, 1)',
+    baseRingHover: 'rgba(56, 123, 199, 0.3)',
     fieldItem: 'group/field-item rounded-[2px]',
-    fieldItemInitials: '',
+    fieldItemInitials: 'group-hover/field-item:bg-recipient-blue',
     comboxBoxTrigger:
-      'ring-2 ring-recipient-green shadow-[0_0_0_5px_hsl(var(--recipient-green)/10%),0_0_0_2px_hsl(var(--recipient-green)/60%),0_0_0_0.5px_hsl(var(--recipient-green))]',
-    comboxBoxItem: '',
+      'ring-2 ring-recipient-blue hover:bg-recipient-blue/15 active:bg-recipient-blue/15 shadow-[0_0_0_5px_hsl(var(--recipient-blue)/10%),0_0_0_2px_hsl(var(--recipient-blue)/60%),0_0_0_0.5px_hsl(var(--recipient-blue))]',
+    comboxBoxItem: 'ring-recipient-blue hover:bg-recipient-blue/15 active:bg-recipient-blue/15',
+  },
+
+  readOnly: {
+    base: 'ring-recipient-blue hover:bg-recipient-blue/30',
+    baseRing: 'rgba(56, 123, 199, 1)',
+    baseRingHover: 'rgba(56, 123, 199, 0.3)',
+    fieldItem: 'group/field-item rounded-[2px]',
+    fieldItemInitials: 'group-hover/field-item:bg-recipient-blue',
+    comboxBoxTrigger:
+      'ring-2 ring-recipient-blue hover:bg-recipient-blue/15 active:bg-recipient-blue/15 shadow-[0_0_0_5px_hsl(var(--recipient-blue)/10%),0_0_0_2px_hsl(var(--recipient-blue)/60%),0_0_0_0.5px_hsl(var(--recipient-blue))]',
+    comboxBoxItem: 'ring-recipient-blue hover:bg-recipient-blue/15 active:bg-recipient-blue/15',
   },
 
   green: {
@@ -39,17 +50,6 @@ export const RECIPIENT_COLOR_STYLES = {
     comboxBoxTrigger:
       'ring-2 ring-recipient-green hover:bg-recipient-green/15 active:bg-recipient-green/15 shadow-[0_0_0_5px_hsl(var(--recipient-green)/10%),0_0_0_2px_hsl(var(--recipient-green)/60%),0_0_0_0.5px_hsl(var(--recipient-green))]',
     comboxBoxItem: 'hover:bg-recipient-green/15 active:bg-recipient-green/15',
-  },
-
-  blue: {
-    base: 'ring-recipient-blue hover:bg-recipient-blue/30',
-    baseRing: 'rgba(56, 123, 199, 1)',
-    baseRingHover: 'rgba(56, 123, 199, 0.3)',
-    fieldItem: 'group/field-item rounded-[2px]',
-    fieldItemInitials: 'group-hover/field-item:bg-recipient-blue',
-    comboxBoxTrigger:
-      'ring-2 ring-recipient-blue hover:bg-recipient-blue/15 active:bg-recipient-blue/15 shadow-[0_0_0_5px_hsl(var(--recipient-blue)/10%),0_0_0_2px_hsl(var(--recipient-blue)/60%),0_0_0_0.5px_hsl(var(--recipient-blue))]',
-    comboxBoxItem: 'ring-recipient-blue hover:bg-recipient-blue/15 active:bg-recipient-blue/15',
   },
 
   purple: {
@@ -100,7 +100,7 @@ export const RECIPIENT_COLOR_STYLES = {
 export type TRecipientColor = keyof typeof RECIPIENT_COLOR_STYLES;
 
 export const AVAILABLE_RECIPIENT_COLORS = [
-  'green',
+  'blue',
   'blue',
   'purple',
   'orange',
