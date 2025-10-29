@@ -18,12 +18,6 @@ export const createDocumentRoute = authenticatedProcedure
     const { user, teamId } = ctx;
     const { title, documentDataId, timezone, folderId, isPdf } = input;
 
-    // console.log('b001');
-    // console.log(input);
-
-    ctx.logger.info({ step: 'b001' });
-    ctx.logger.info({ input });
-
     ctx.logger.info({
       input: {
         folderId,
@@ -38,8 +32,6 @@ export const createDocumentRoute = authenticatedProcedure
         statusCode: 400,
       });
     }
-
-    ctx.logger.info({ step: 'b002', isPdf });
 
     const document = await createEnvelope({
       userId: user.id,
