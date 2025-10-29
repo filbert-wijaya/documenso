@@ -16,6 +16,7 @@ export const getDocumentMeta: TrpcRouteMeta = {
 
 export const ZGetDocumentRequestSchema = z.object({
   documentId: z.number(),
+  teamId: z.number(),
 });
 
 export const ZGetDocumentResponseSchema = ZDocumentSchema;

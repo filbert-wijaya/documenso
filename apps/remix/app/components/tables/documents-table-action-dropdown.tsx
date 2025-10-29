@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router';
 
-import { downloadPDF } from '@documenso/lib/client-only/download-pdf';
+import { downloadNonPDF, downloadPDF } from '@documenso/lib/client-only/download-pdf';
 import { useSession } from '@documenso/lib/client-only/providers/session';
 import type { TDocumentMany as TDocumentRow } from '@documenso/lib/types/document';
 import { isDocumentCompleted } from '@documenso/lib/utils/document';
@@ -79,6 +79,7 @@ export const DocumentsTableActionDropdown = ({
       const document = !recipient
         ? await trpcClient.document.get.query({
             documentId: row.id,
+            teamId: row.teamId,
           })
         : await trpcClient.document.getDocumentByToken.query({
             token: recipient.token,
@@ -105,6 +106,7 @@ export const DocumentsTableActionDropdown = ({
       const document = !recipient
         ? await trpcClient.document.get.query({
             documentId: row.id,
+            teamId: row.teamId,
           })
         : await trpcClient.document.getDocumentByToken.query({
             token: recipient.token,
@@ -116,7 +118,11 @@ export const DocumentsTableActionDropdown = ({
         return;
       }
 
-      await downloadPDF({ documentData, fileName: row.title, version: 'original' });
+      if (documentData.fileFormat === 'pdf') {
+        await downloadPDF({ documentData, fileName: row.title, version: 'original' });
+      } else {
+        await downloadNonPDF({ documentData, fileName: row.title, version: 'original' });
+      }
     } catch (err) {
       toast({
         title: _(msg`Something went wrong`),

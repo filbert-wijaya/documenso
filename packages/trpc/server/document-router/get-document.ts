@@ -12,8 +12,8 @@ export const getDocumentRoute = authenticatedProcedure
   .input(ZGetDocumentRequestSchema)
   .output(ZGetDocumentResponseSchema)
   .query(async ({ input, ctx }) => {
-    const { teamId, user } = ctx;
-    const { documentId } = input;
+    const { user } = ctx;
+    const { documentId, teamId } = input;
 
     ctx.logger.info({
       input: {
