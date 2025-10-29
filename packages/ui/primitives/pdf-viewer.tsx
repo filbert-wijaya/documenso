@@ -209,10 +209,10 @@ export const PDFViewer = ({
               <div className="dark:bg-background flex h-[80vh] max-h-[60rem] flex-col items-center justify-center bg-white/50">
                 <div className="text-muted-foreground text-center">
                   <p>
-                    <Trans>Something went wrong while loading the document.</Trans>
+                    <Trans>Preview only supports file in PDF format.</Trans>
                   </p>
                   <p className="mt-1 text-sm">
-                    <Trans>Please try again or contact our support.</Trans>
+                    <Trans>Please upload file in PDF format to preview file.</Trans>
                   </p>
                 </div>
               </div>

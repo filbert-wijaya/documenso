@@ -64,7 +64,43 @@ export const filesRoute = new Hono<HonoEnv>()
 
       const { type, data } = await putFileServerSide(file);
 
-      const result = await createDocumentData({ type, data });
+      const result = await createDocumentData({ type, data, fileFormat: 'pdf' });
+
+      return c.json(result);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      return c.json({ error: 'Upload failed' }, 500);
+    }
+  })
+  .post('/upload-file', sValidator('form', ZUploadPdfRequestSchema), async (c) => {
+    try {
+      const { file } = c.req.valid('form');
+
+      if (!file) {
+        return c.json({ error: 'No file provided' }, 400);
+      }
+
+      // Add file size validation.
+      // Convert MB to bytes (1 MB = 1024 * 1024 bytes)
+      const MAX_FILE_SIZE = APP_DOCUMENT_UPLOAD_SIZE_LIMIT * 1024 * 1024;
+
+      if (file.size > MAX_FILE_SIZE) {
+        return c.json({ error: 'File too large' }, 400);
+      }
+
+      const { type, data } = await putFileServerSide(file);
+
+      let fileFormat = 'unknown';
+
+      if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        fileFormat = 'word';
+      } else if (
+        file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      ) {
+        fileFormat = 'excel';
+      }
+
+      const result = await createDocumentData({ type, data, fileFormat });
 
       return c.json(result);
     } catch (error) {

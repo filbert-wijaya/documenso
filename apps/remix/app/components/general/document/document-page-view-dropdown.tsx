@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 
-import { downloadPDF } from '@documenso/lib/client-only/download-pdf';
+import { downloadNonPDF, downloadPDF } from '@documenso/lib/client-only/download-pdf';
 import { useSession } from '@documenso/lib/client-only/providers/session';
 import type { TEnvelope } from '@documenso/lib/types/envelope';
 import { isDocumentCompleted } from '@documenso/lib/utils/document';
@@ -114,7 +114,11 @@ export const DocumentPageViewDropdown = ({ envelope }: DocumentPageViewDropdownP
         return;
       }
 
-      await downloadPDF({ documentData, fileName: envelope.title, version: 'original' });
+      if (documentData.fileFormat === 'pdf') {
+        await downloadPDF({ documentData, fileName: envelope.title, version: 'original' });
+      } else {
+        await downloadNonPDF({ documentData, fileName: envelope.title, version: 'original' });
+      }
     } catch (err) {
       toast({
         title: _(msg`Something went wrong`),

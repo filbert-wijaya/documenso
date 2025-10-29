@@ -16,7 +16,13 @@ export const createDocumentRoute = authenticatedProcedure
   .output(ZCreateDocumentResponseSchema)
   .mutation(async ({ input, ctx }) => {
     const { user, teamId } = ctx;
-    const { title, documentDataId, timezone, folderId } = input;
+    const { title, documentDataId, timezone, folderId, isPdf } = input;
+
+    // console.log('b001');
+    // console.log(input);
+
+    ctx.logger.info({ step: 'b001' });
+    ctx.logger.info({ input });
 
     ctx.logger.info({
       input: {
@@ -33,6 +39,8 @@ export const createDocumentRoute = authenticatedProcedure
       });
     }
 
+    ctx.logger.info({ step: 'b002', isPdf });
+
     const document = await createEnvelope({
       userId: user.id,
       teamId,
@@ -48,7 +56,7 @@ export const createDocumentRoute = authenticatedProcedure
           },
         ],
       },
-      normalizePdf: true,
+      normalizePdf: isPdf,
       requestMetadata: ctx.metadata,
     });
 

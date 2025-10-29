@@ -13,7 +13,7 @@ import { useSession } from '@documenso/lib/client-only/providers/session';
 import { APP_DOCUMENT_UPLOAD_SIZE_LIMIT } from '@documenso/lib/constants/app';
 import { DEFAULT_DOCUMENT_TIME_ZONE, TIME_ZONES } from '@documenso/lib/constants/time-zones';
 import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
-import { putPdfFile } from '@documenso/lib/universal/upload/put-file';
+import { putAllFile, putPdfFile } from '@documenso/lib/universal/upload/put-file';
 import { formatDocumentsPath } from '@documenso/lib/utils/teams';
 import { trpc } from '@documenso/trpc/react';
 import { cn } from '@documenso/ui/lib/utils';
@@ -73,30 +73,66 @@ export const DocumentUploadButton = ({ className }: DocumentUploadButtonProps) =
     try {
       setIsLoading(true);
 
-      const response = await putPdfFile(file);
+      if (
+        file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+        file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ) {
+        // create document data
+        // return id, type, data, initial data
+        const response = await putAllFile(file);
 
-      const { legacyDocumentId: id } = await createDocument({
-        title: file.name,
-        documentDataId: response.id,
-        timezone: userTimezone,
-        folderId: folderId ?? undefined,
-      });
+        const { legacyDocumentId: id } = await createDocument({
+          title: file.name,
+          documentDataId: response.id,
+          timezone: userTimezone,
+          folderId: folderId ?? undefined,
+          isPdf: false,
+        });
 
-      void refreshLimits();
+        void refreshLimits();
 
-      await navigate(`${formatDocumentsPath(team.url)}/${id}/edit`);
+        await navigate(`${formatDocumentsPath(team.url)}/${id}/edit`);
 
-      toast({
-        title: _(msg`Document uploaded`),
-        description: _(msg`Your document has been uploaded successfully.`),
-        duration: 5000,
-      });
+        toast({
+          title: _(msg`Document uploaded`),
+          description: _(msg`Your document has been uploaded successfully.`),
+          duration: 5000,
+        });
 
-      analytics.capture('App: Document Uploaded', {
-        userId: user.id,
-        documentId: id,
-        timestamp: new Date().toISOString(),
-      });
+        analytics.capture('App: Document Uploaded', {
+          userId: user.id,
+          documentId: id,
+          timestamp: new Date().toISOString(),
+        });
+      } else {
+        // create document data
+        // return id, type, data, initial data
+        const response = await putPdfFile(file);
+
+        const { legacyDocumentId: id } = await createDocument({
+          title: file.name,
+          documentDataId: response.id,
+          timezone: userTimezone,
+          folderId: folderId ?? undefined,
+          isPdf: true,
+        });
+
+        void refreshLimits();
+
+        await navigate(`${formatDocumentsPath(team.url)}/${id}/edit`);
+
+        toast({
+          title: _(msg`Document uploaded`),
+          description: _(msg`Your document has been uploaded successfully.`),
+          duration: 5000,
+        });
+
+        analytics.capture('App: Document Uploaded', {
+          userId: user.id,
+          documentId: id,
+          timestamp: new Date().toISOString(),
+        });
+      }
     } catch (err) {
       const error = AppError.parseError(err);
 

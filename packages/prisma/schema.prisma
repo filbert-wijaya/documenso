@@ -421,6 +421,7 @@ model DocumentAuditLog {
 model DocumentData {
   id           String           @id @default(cuid())
   type         DocumentDataType
+  fileFormat   String           @default("pdf")
   data         String
   initialData  String
   envelopeItem EnvelopeItem?
