@@ -39,6 +39,7 @@ export const updateTeamSettingsRoute = authenticatedProcedure
       typedSignatureEnabled,
       uploadSignatureEnabled,
       drawSignatureEnabled,
+      qrCodeSignatureEnabled,
 
       // Branding related settings.
       brandingEnabled,
@@ -63,7 +64,8 @@ export const updateTeamSettingsRoute = authenticatedProcedure
     if (
       typedSignatureEnabled === false &&
       uploadSignatureEnabled === false &&
-      drawSignatureEnabled === false
+      drawSignatureEnabled === false &&
+      qrCodeSignatureEnabled === false
     ) {
       throw new AppError(AppErrorCode.INVALID_BODY, {
         message: 'At least one signature type must be enabled',
@@ -147,6 +149,7 @@ export const updateTeamSettingsRoute = authenticatedProcedure
             typedSignatureEnabled,
             uploadSignatureEnabled,
             drawSignatureEnabled,
+            qrCodeSignatureEnabled,
 
             // Branding related settings.
             brandingEnabled,

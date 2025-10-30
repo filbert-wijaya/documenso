@@ -74,6 +74,7 @@ export default function OrganisationSettingsDocumentPage() {
           typedSignatureEnabled: signatureTypes.includes(DocumentSignatureType.TYPE),
           uploadSignatureEnabled: signatureTypes.includes(DocumentSignatureType.UPLOAD),
           drawSignatureEnabled: signatureTypes.includes(DocumentSignatureType.DRAW),
+          qrCodeSignatureEnabled: signatureTypes.includes(DocumentSignatureType.QR),
         },
       });
 

@@ -285,6 +285,7 @@ export const DocumentSigningForm = ({
                         typedSignatureEnabled={document.documentMeta?.typedSignatureEnabled}
                         uploadSignatureEnabled={document.documentMeta?.uploadSignatureEnabled}
                         drawSignatureEnabled={document.documentMeta?.drawSignatureEnabled}
+                        qrCodeSignatureEnabled={document.documentMeta?.qrCodeSignatureEnabled}
                       />
                     </div>
                   )}

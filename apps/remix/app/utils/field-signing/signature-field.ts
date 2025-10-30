@@ -12,13 +12,20 @@ type HandleSignatureFieldClickOptions = {
   typedSignatureEnabled?: boolean;
   uploadSignatureEnabled?: boolean;
   drawSignatureEnabled?: boolean;
+  qrCodeSignatureEnabled?: boolean;
 };
 
 export const handleSignatureFieldClick = async (
   options: HandleSignatureFieldClickOptions,
 ): Promise<Extract<TSignEnvelopeFieldValue, { type: typeof FieldType.SIGNATURE }> | null> => {
-  const { field, signature, typedSignatureEnabled, uploadSignatureEnabled, drawSignatureEnabled } =
-    options;
+  const {
+    field,
+    signature,
+    typedSignatureEnabled,
+    uploadSignatureEnabled,
+    drawSignatureEnabled,
+    qrCodeSignatureEnabled,
+  } = options;
 
   if (field.type !== FieldType.SIGNATURE) {
     throw new AppError(AppErrorCode.INVALID_REQUEST, {
@@ -41,6 +48,7 @@ export const handleSignatureFieldClick = async (
       typedSignatureEnabled,
       uploadSignatureEnabled,
       drawSignatureEnabled,
+      qrCodeSignatureEnabled,
     });
   }
 

@@ -36,6 +36,7 @@ export const updateOrganisationSettingsRoute = authenticatedProcedure
       typedSignatureEnabled,
       uploadSignatureEnabled,
       drawSignatureEnabled,
+      qrCodeSignatureEnabled,
 
       // Branding related settings.
       brandingEnabled,
@@ -95,11 +96,14 @@ export const updateOrganisationSettingsRoute = authenticatedProcedure
       uploadSignatureEnabled ?? organisation.organisationGlobalSettings.uploadSignatureEnabled;
     const derivedDrawSignatureEnabled =
       drawSignatureEnabled ?? organisation.organisationGlobalSettings.drawSignatureEnabled;
+    const derivedQrCodeSignatureEnabled =
+      qrCodeSignatureEnabled ?? organisation.organisationGlobalSettings.qrCodeSignatureEnabled;
 
     if (
       derivedTypedSignatureEnabled === false &&
       derivedUploadSignatureEnabled === false &&
-      derivedDrawSignatureEnabled === false
+      derivedDrawSignatureEnabled === false &&
+      derivedQrCodeSignatureEnabled === false
     ) {
       throw new AppError(AppErrorCode.INVALID_BODY, {
         message: 'At least one signature type must be enabled',
@@ -137,6 +141,7 @@ export const updateOrganisationSettingsRoute = authenticatedProcedure
             typedSignatureEnabled,
             uploadSignatureEnabled,
             drawSignatureEnabled,
+            qrCodeSignatureEnabled,
 
             // Branding related settings.
             brandingEnabled,

@@ -56,6 +56,7 @@ export const extractDerivedDocumentMeta = (
     typedSignatureEnabled: meta.typedSignatureEnabled ?? settings.typedSignatureEnabled,
     uploadSignatureEnabled: meta.uploadSignatureEnabled ?? settings.uploadSignatureEnabled,
     drawSignatureEnabled: meta.drawSignatureEnabled ?? settings.drawSignatureEnabled,
+    qrCodeSignatureEnabled: meta.qrCodeSignatureEnabled ?? settings.qrCodeSignatureEnabled,
 
     // Email settings.
     emailId: meta.emailId ?? settings.emailId,

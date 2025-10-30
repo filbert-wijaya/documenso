@@ -50,6 +50,7 @@ export default function EnvelopeSignerForm() {
               typedSignatureEnabled={envelope.documentMeta.typedSignatureEnabled}
               uploadSignatureEnabled={envelope.documentMeta.uploadSignatureEnabled}
               drawSignatureEnabled={envelope.documentMeta.drawSignatureEnabled}
+              qrCodeSignatureEnabled={envelope.documentMeta.qrCodeSignatureEnabled}
             />
           </div>
         )}

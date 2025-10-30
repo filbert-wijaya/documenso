@@ -20,6 +20,7 @@ export type SignFieldSignatureDialogProps = {
   typedSignatureEnabled?: boolean;
   uploadSignatureEnabled?: boolean;
   drawSignatureEnabled?: boolean;
+  qrCodeSignatureEnabled?: boolean;
 };
 
 export const SignFieldSignatureDialog = createCallable<
@@ -31,6 +32,7 @@ export const SignFieldSignatureDialog = createCallable<
     typedSignatureEnabled,
     uploadSignatureEnabled,
     drawSignatureEnabled,
+    qrCodeSignatureEnabled,
     initialSignature,
   }) => {
     const [localSignature, setLocalSignature] = useState(initialSignature);
@@ -51,6 +53,7 @@ export const SignFieldSignatureDialog = createCallable<
               typedSignatureEnabled={typedSignatureEnabled}
               uploadSignatureEnabled={uploadSignatureEnabled}
               drawSignatureEnabled={drawSignatureEnabled}
+              qrCodeSignatureEnabled={qrCodeSignatureEnabled}
             />
           </div>
 

@@ -445,6 +445,7 @@ model DocumentMeta {
   emailSettings          Json?
   drawSignatureEnabled   Boolean                    @default(true)
   uploadSignatureEnabled Boolean                    @default(true)
+  qrCodeSignatureEnabled Boolean                    @default(true)
   allowDictateNextSigner Boolean                    @default(false)
   emailId                String?
   emailReplyTo           String?
@@ -638,6 +639,7 @@ model OrganisationGlobalSettings {
   typedSignatureEnabled     Boolean            @default(true)
   uploadSignatureEnabled    Boolean            @default(true)
   drawSignatureEnabled      Boolean            @default(true)
+  qrCodeSignatureEnabled    Boolean            @default(true)
   brandingEnabled           Boolean            @default(false)
   brandingLogo              String             @default("")
   brandingUrl               String             @default("")
@@ -668,6 +670,7 @@ model TeamGlobalSettings {
   includeSigningCertificate Boolean?
   drawSignatureEnabled      Boolean?
   uploadSignatureEnabled    Boolean?
+  qrCodeSignatureEnabled    Boolean?
   id                        String              @id
   documentDateFormat        String?
   documentTimezone          String?

@@ -26,6 +26,7 @@ export const ZUpdateTeamSettingsRequestSchema = z.object({
     typedSignatureEnabled: z.boolean().nullish(),
     uploadSignatureEnabled: z.boolean().nullish(),
     drawSignatureEnabled: z.boolean().nullish(),
+    qrCodeSignatureEnabled: z.boolean().nullish(),
 
     // Branding related settings.
     brandingEnabled: z.boolean().nullish(),

@@ -103,6 +103,10 @@ export default function EmbeddingAuthoringTemplateEditPage() {
       types.push(DocumentSignatureType.UPLOAD);
     }
 
+    if (template.templateMeta?.qrCodeSignatureEnabled) {
+      types.push(DocumentSignatureType.QR);
+    }
+
     return types;
   }, [template.templateMeta]);
 
@@ -220,6 +224,10 @@ export default function EmbeddingAuthoringTemplateEditPage() {
           uploadSignatureEnabled: configuration.meta.signatureTypes
             ? configuration.meta.signatureTypes.length === 0 ||
               configuration.meta.signatureTypes.includes(DocumentSignatureType.UPLOAD)
+            : undefined,
+          qrCodeSignatureEnabled: configuration.meta.signatureTypes
+            ? configuration.meta.signatureTypes.length === 0 ||
+              configuration.meta.signatureTypes.includes(DocumentSignatureType.QR)
             : undefined,
         },
         recipients: configuration.signers.map((signer) => ({

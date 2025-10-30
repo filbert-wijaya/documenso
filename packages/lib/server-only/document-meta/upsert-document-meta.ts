@@ -38,6 +38,7 @@ export type CreateDocumentMetaOptions = {
   drawSignatureEnabled?: boolean;
   language?: SupportedLanguageCodes;
   requestMetadata: ApiRequestMetadata;
+  qrCodeSignatureEnabled?: boolean;
 };
 
 export const updateDocumentMeta = async ({
@@ -58,6 +59,7 @@ export const updateDocumentMeta = async ({
   typedSignatureEnabled,
   uploadSignatureEnabled,
   drawSignatureEnabled,
+  qrCodeSignatureEnabled,
   language,
   requestMetadata,
 }: CreateDocumentMetaOptions) => {
@@ -119,6 +121,7 @@ export const updateDocumentMeta = async ({
         typedSignatureEnabled,
         uploadSignatureEnabled,
         drawSignatureEnabled,
+        qrCodeSignatureEnabled,
         language,
       },
     });

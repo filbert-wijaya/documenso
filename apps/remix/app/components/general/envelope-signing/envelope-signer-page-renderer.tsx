@@ -333,6 +333,7 @@ export default function EnvelopeSignerPageRenderer() {
             typedSignatureEnabled: envelope.documentMeta.typedSignatureEnabled,
             uploadSignatureEnabled: envelope.documentMeta.uploadSignatureEnabled,
             drawSignatureEnabled: envelope.documentMeta.drawSignatureEnabled,
+            qrCodeSignatureEnabled: envelope.documentMeta.qrCodeSignatureEnabled,
           })
             .then(async (payload) => {
               if (payload) {

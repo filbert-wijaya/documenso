@@ -72,6 +72,7 @@ type SettingsSubset = Pick<
   | 'typedSignatureEnabled'
   | 'uploadSignatureEnabled'
   | 'drawSignatureEnabled'
+  | 'qrCodeSignatureEnabled'
 >;
 
 export type DocumentPreferencesFormProps = {

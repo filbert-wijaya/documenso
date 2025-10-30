@@ -34,6 +34,7 @@ export interface DocumentSigningProviderProps {
   typedSignatureEnabled?: boolean;
   uploadSignatureEnabled?: boolean;
   drawSignatureEnabled?: boolean;
+  qrCodeSignatureEnabled?: boolean;
   children: React.ReactNode;
 }
 
@@ -44,6 +45,7 @@ export const DocumentSigningProvider = ({
   typedSignatureEnabled = true,
   uploadSignatureEnabled = true,
   drawSignatureEnabled = true,
+  qrCodeSignatureEnabled = true,
   children,
 }: DocumentSigningProviderProps) => {
   const [fullName, setFullName] = useState(initialFullName || '');

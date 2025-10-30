@@ -57,11 +57,13 @@ export default function TeamsSettingsPage() {
                 typedSignatureEnabled: null,
                 uploadSignatureEnabled: null,
                 drawSignatureEnabled: null,
+                qrCodeSignatureEnabled: null,
               }
             : {
                 typedSignatureEnabled: signatureTypes.includes(DocumentSignatureType.TYPE),
                 uploadSignatureEnabled: signatureTypes.includes(DocumentSignatureType.UPLOAD),
                 drawSignatureEnabled: signatureTypes.includes(DocumentSignatureType.DRAW),
+                qrCodeSignatureEnabled: signatureTypes.includes(DocumentSignatureType.QR),
               }),
         },
       });

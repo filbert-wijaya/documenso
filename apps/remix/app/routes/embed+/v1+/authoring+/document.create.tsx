@@ -83,6 +83,8 @@ export default function EmbeddingAuthoringDocumentCreatePage() {
             signatureTypes.length === 0 || signatureTypes.includes(DocumentSignatureType.TYPE),
           uploadSignatureEnabled:
             signatureTypes.length === 0 || signatureTypes.includes(DocumentSignatureType.UPLOAD),
+          qrCodeSignatureEnabled:
+            signatureTypes.length === 0 || signatureTypes.includes(DocumentSignatureType.QR),
         },
         recipients: configuration.signers.map((signer) => ({
           name: signer.name,

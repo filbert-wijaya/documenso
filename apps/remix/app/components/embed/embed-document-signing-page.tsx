@@ -459,6 +459,7 @@ export const EmbedSignDocumentClientPage = ({
                             typedSignatureEnabled={metadata?.typedSignatureEnabled}
                             uploadSignatureEnabled={metadata?.uploadSignatureEnabled}
                             drawSignatureEnabled={metadata?.drawSignatureEnabled}
+                            qrCodeSignatureEnabled={metadata?.qrCodeSignatureEnabled}
                           />
                         </div>
                       )}

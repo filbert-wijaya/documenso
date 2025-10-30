@@ -91,6 +91,7 @@ export default function DirectTemplatePage() {
       typedSignatureEnabled={template.templateMeta?.typedSignatureEnabled}
       uploadSignatureEnabled={template.templateMeta?.uploadSignatureEnabled}
       drawSignatureEnabled={template.templateMeta?.drawSignatureEnabled}
+      qrCodeSignatureEnabled={template.templateMeta?.qrCodeSignatureEnabled}
     >
       <DocumentSigningAuthProvider
         documentAuthOptions={template.authOptions}

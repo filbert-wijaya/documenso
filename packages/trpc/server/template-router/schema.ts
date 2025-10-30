@@ -13,6 +13,7 @@ import {
   ZDocumentMetaDrawSignatureEnabledSchema,
   ZDocumentMetaLanguageSchema,
   ZDocumentMetaMessageSchema,
+  ZDocumentMetaQrCodeSignatureEnabledSchema,
   ZDocumentMetaRedirectUrlSchema,
   ZDocumentMetaSubjectSchema,
   ZDocumentMetaTimezoneSchema,
@@ -72,6 +73,7 @@ export const ZTemplateMetaUpsertSchema = z.object({
   typedSignatureEnabled: ZDocumentMetaTypedSignatureEnabledSchema.optional(),
   uploadSignatureEnabled: ZDocumentMetaUploadSignatureEnabledSchema.optional(),
   drawSignatureEnabled: ZDocumentMetaDrawSignatureEnabledSchema.optional(),
+  qrCodeSignatureEnabled: ZDocumentMetaQrCodeSignatureEnabledSchema.optional(),
   signingOrder: z.nativeEnum(DocumentSigningOrder).optional(),
   allowDictateNextSigner: z.boolean().optional(),
 });

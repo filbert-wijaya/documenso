@@ -155,6 +155,7 @@ export default function EmbedSignDocumentPage() {
       typedSignatureEnabled={document.documentMeta?.typedSignatureEnabled}
       uploadSignatureEnabled={document.documentMeta?.uploadSignatureEnabled}
       drawSignatureEnabled={document.documentMeta?.drawSignatureEnabled}
+      qrCodeSignatureEnabled={document.documentMeta?.qrCodeSignatureEnabled}
     >
       <DocumentSigningAuthProvider
         documentAuthOptions={document.authOptions}

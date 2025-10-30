@@ -7,6 +7,7 @@ import {
   ZDocumentMetaDrawSignatureEnabledSchema,
   ZDocumentMetaLanguageSchema,
   ZDocumentMetaMessageSchema,
+  ZDocumentMetaQrCodeSignatureEnabledSchema,
   ZDocumentMetaRedirectUrlSchema,
   ZDocumentMetaSubjectSchema,
   ZDocumentMetaTimezoneSchema,
@@ -61,6 +62,7 @@ export const ZCreateEmbeddingDocumentRequestSchema = z.object({
       typedSignatureEnabled: ZDocumentMetaTypedSignatureEnabledSchema.optional(),
       drawSignatureEnabled: ZDocumentMetaDrawSignatureEnabledSchema.optional(),
       uploadSignatureEnabled: ZDocumentMetaUploadSignatureEnabledSchema.optional(),
+      qrCodeSignatureEnabled: ZDocumentMetaQrCodeSignatureEnabledSchema.optional(),
       emailSettings: ZDocumentEmailSettingsSchema.optional(),
     })
     .optional(),

@@ -103,6 +103,10 @@ export default function EmbeddingAuthoringDocumentEditPage() {
       types.push(DocumentSignatureType.UPLOAD);
     }
 
+    if (document.documentMeta?.qrCodeSignatureEnabled) {
+      types.push(DocumentSignatureType.QR);
+    }
+
     return types;
   }, [document.documentMeta]);
 
@@ -220,6 +224,10 @@ export default function EmbeddingAuthoringDocumentEditPage() {
           uploadSignatureEnabled: configuration.meta.signatureTypes
             ? configuration.meta.signatureTypes.length === 0 ||
               configuration.meta.signatureTypes.includes(DocumentSignatureType.UPLOAD)
+            : undefined,
+          qrCodeSignatureEnabled: configuration.meta.signatureTypes
+            ? configuration.meta.signatureTypes.length === 0 ||
+              configuration.meta.signatureTypes.includes(DocumentSignatureType.QR)
             : undefined,
         },
         recipients: configuration.signers.map((signer) => ({

@@ -125,6 +125,7 @@ export const generateDefaultOrganisationSettings = (): Omit<
     typedSignatureEnabled: true,
     uploadSignatureEnabled: true,
     drawSignatureEnabled: true,
+    qrCodeSignatureEnabled: true,
 
     brandingEnabled: false,
     brandingLogo: '',

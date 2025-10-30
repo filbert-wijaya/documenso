@@ -110,6 +110,7 @@ export type CreateDocumentFromTemplateOptions = {
     typedSignatureEnabled?: boolean;
     uploadSignatureEnabled?: boolean;
     drawSignatureEnabled?: boolean;
+    qrCodeSignatureEnabled?: boolean;
   };
   requestMetadata: ApiRequestMetadata;
 };
@@ -471,6 +472,8 @@ export const createDocumentFromTemplate = async ({
         override?.uploadSignatureEnabled ?? template.documentMeta?.uploadSignatureEnabled,
       drawSignatureEnabled:
         override?.drawSignatureEnabled ?? template.documentMeta?.drawSignatureEnabled,
+      qrCodeSignatureEnabled:
+        override?.qrCodeSignatureEnabled ?? template.documentMeta?.qrCodeSignatureEnabled,
       allowDictateNextSigner:
         override?.allowDictateNextSigner ?? template.documentMeta?.allowDictateNextSigner,
     }),

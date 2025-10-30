@@ -1,9 +1,9 @@
 import type { HTMLAttributes } from 'react';
 import { useState } from 'react';
 
-import { KeyboardIcon, UploadCloudIcon } from 'lucide-react';
-import { match } from 'ts-pattern';
 import { Trans } from '@lingui/react/macro';
+import { KeyboardIcon, QrCodeIcon, UploadCloudIcon } from 'lucide-react';
+import { match } from 'ts-pattern';
 
 import { DocumentSignatureType } from '@documenso/lib/constants/document';
 import { isBase64Image } from '@documenso/lib/constants/signatures';
@@ -11,6 +11,7 @@ import { isBase64Image } from '@documenso/lib/constants/signatures';
 import { SignatureIcon } from '../../icons/signature';
 import { cn } from '../../lib/utils';
 import { SignaturePadDraw } from './signature-pad-draw';
+import { SignaturePadQrCode } from './signature-pad-qr-code';
 import { SignaturePadType } from './signature-pad-type';
 import { SignaturePadUpload } from './signature-pad-upload';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './signature-tabs';
@@ -29,6 +30,7 @@ export type SignaturePadProps = Omit<HTMLAttributes<HTMLCanvasElement>, 'onChang
   typedSignatureEnabled?: boolean;
   uploadSignatureEnabled?: boolean;
   drawSignatureEnabled?: boolean;
+  qrCodeSignatureEnabled?: boolean;
 
   onValidityChange?: (isValid: boolean) => void;
 };
@@ -40,10 +42,12 @@ export const SignaturePad = ({
   typedSignatureEnabled = true,
   uploadSignatureEnabled = true,
   drawSignatureEnabled = true,
+  qrCodeSignatureEnabled = true,
 }: SignaturePadProps) => {
   const [imageSignature, setImageSignature] = useState(isBase64Image(value) ? value : '');
   const [drawSignature, setDrawSignature] = useState(isBase64Image(value) ? value : '');
   const [typedSignature, setTypedSignature] = useState(isBase64Image(value) ? '' : value);
+  const [qrCodeSignature, setQrCodeSignature] = useState(isBase64Image(value) ? '' : value);
 
   /**
    * This is cooked.
@@ -52,7 +56,7 @@ export const SignaturePad = ({
    * the first enabled tab.
    */
   const [tab, setTab] = useState(
-    ((): 'draw' | 'text' | 'image' => {
+    ((): 'draw' | 'text' | 'image' | 'qr' => {
       // First passthrough to check to see if there's a signature for a given tab.
       if (drawSignatureEnabled && drawSignature) {
         return 'draw';
@@ -66,6 +70,10 @@ export const SignaturePad = ({
         return 'image';
       }
 
+      if (qrCodeSignatureEnabled && qrCodeSignature) {
+        return 'qr';
+      }
+
       // Second passthrough to just select the first avaliable tab.
       if (drawSignatureEnabled) {
         return 'draw';
@@ -77,6 +85,10 @@ export const SignaturePad = ({
 
       if (uploadSignatureEnabled) {
         return 'image';
+      }
+
+      if (qrCodeSignatureEnabled) {
+        return 'qr';
       }
 
       throw new Error('No signature enabled');
@@ -110,7 +122,16 @@ export const SignaturePad = ({
     });
   };
 
-  const onTabChange = (value: 'draw' | 'text' | 'image') => {
+  const onQrCodeSignatureChange = (value: string) => {
+    setQrCodeSignature(value);
+
+    onChange?.({
+      type: DocumentSignatureType.QR,
+      value,
+    });
+  };
+
+  const onTabChange = (value: 'draw' | 'text' | 'image' | 'qr') => {
     if (disabled) {
       return;
     }
@@ -127,10 +148,18 @@ export const SignaturePad = ({
       .with('image', () => {
         onImageSignatureChange(imageSignature);
       })
+      .with('qr', () => {
+        onQrCodeSignatureChange(qrCodeSignature);
+      })
       .exhaustive();
   };
 
-  if (!drawSignatureEnabled && !typedSignatureEnabled && !uploadSignatureEnabled) {
+  if (
+    !drawSignatureEnabled &&
+    !typedSignatureEnabled &&
+    !uploadSignatureEnabled &&
+    !qrCodeSignatureEnabled
+  ) {
     return null;
   }
 
@@ -141,7 +170,7 @@ export const SignaturePad = ({
         'pointer-events-none': disabled,
       })}
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      onValueChange={(value) => onTabChange(value as 'draw' | 'text' | 'image')}
+      onValueChange={(value) => onTabChange(value as 'draw' | 'text' | 'image' | 'qr')}
     >
       <TabsList>
         {drawSignatureEnabled && (
@@ -162,6 +191,13 @@ export const SignaturePad = ({
           <TabsTrigger value="image">
             <UploadCloudIcon className="mr-2 size-4" />
             <Trans>Upload</Trans>
+          </TabsTrigger>
+        )}
+
+        {qrCodeSignatureEnabled && (
+          <TabsTrigger value="qr">
+            <QrCodeIcon className="mr-2 size-4" />
+            <Trans>QR Code</Trans>
           </TabsTrigger>
         )}
       </TabsList>
@@ -194,6 +230,18 @@ export const SignaturePad = ({
         )}
       >
         <SignaturePadUpload value={imageSignature} onChange={onImageSignatureChange} />
+      </TabsContent>
+
+      <TabsContent
+        value="qr"
+        className={cn(
+          'border-border aspect-signature-pad dark:bg-background relative rounded-md border bg-neutral-50',
+          {
+            'bg-white': qrCodeSignature,
+          },
+        )}
+      >
+        <SignaturePadQrCode value={imageSignature} onChange={onQrCodeSignatureChange} />
       </TabsContent>
     </Tabs>
   );

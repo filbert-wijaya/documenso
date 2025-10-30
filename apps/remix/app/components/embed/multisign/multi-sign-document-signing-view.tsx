@@ -328,6 +328,9 @@ export const MultiSignDocumentSigningView = ({
                                     drawSignatureEnabled={
                                       document.documentMeta?.drawSignatureEnabled
                                     }
+                                    qrCodeSignatureEnabled={
+                                      document.documentMeta?.qrCodeSignatureEnabled
+                                    }
                                   />
                                 </div>
                               )}
