@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import type { MessageDescriptor } from '@lingui/core';
 import { Trans, useLingui } from '@lingui/react/macro';
+import type { Field } from '@prisma/client';
 import { motion } from 'framer-motion';
 
 import { parseMessageDescriptor } from '@documenso/lib/utils/i18n';
@@ -23,6 +24,7 @@ export type SignaturePadDialogProps = Omit<HTMLAttributes<HTMLCanvasElement>, 'o
   uploadSignatureEnabled?: boolean;
   drawSignatureEnabled?: boolean;
   qrCodeSignatureEnabled?: boolean;
+  recipientSignatureField?: Field;
 };
 
 export const SignaturePadDialog = ({
@@ -36,6 +38,7 @@ export const SignaturePadDialog = ({
   drawSignatureEnabled,
   qrCodeSignatureEnabled,
   dialogConfirmText,
+  recipientSignatureField,
 }: SignaturePadDialogProps) => {
   const { i18n } = useLingui();
 
@@ -122,6 +125,7 @@ export const SignaturePadDialog = ({
             uploadSignatureEnabled={uploadSignatureEnabled}
             drawSignatureEnabled={drawSignatureEnabled}
             qrCodeSignatureEnabled={qrCodeSignatureEnabled}
+            recipientSignatureField={recipientSignatureField}
           />
 
           <DialogFooter>

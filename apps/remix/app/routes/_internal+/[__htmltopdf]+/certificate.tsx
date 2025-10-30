@@ -8,7 +8,6 @@ import { match } from 'ts-pattern';
 import { UAParser } from 'ua-parser-js';
 import { renderSVG } from 'uqr';
 
-import { NEXT_PUBLIC_WEBAPP_URL } from '@documenso/lib/constants/app';
 import { APP_I18N_OPTIONS, ZSupportedLanguageCodeSchema } from '@documenso/lib/constants/i18n';
 import {
   RECIPIENT_ROLES_DESCRIPTION,
@@ -383,7 +382,8 @@ export default function SigningCertificate({ loaderData }: Route.ComponentProps)
             <div
               className="flex h-24 w-24 justify-center"
               dangerouslySetInnerHTML={{
-                __html: renderSVG(`${NEXT_PUBLIC_WEBAPP_URL()}/share/${document.qrToken}`, {
+                // __html: renderSVG(`${NEXT_PUBLIC_WEBAPP_URL()}/share/${document.qrToken}`, {
+                __html: renderSVG(`http:localhost:3001/v1/document/${document.qrToken}`, {
                   ecc: 'Q',
                 }),
               }}

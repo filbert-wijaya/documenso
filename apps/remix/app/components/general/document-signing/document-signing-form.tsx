@@ -118,6 +118,13 @@ export const DocumentSigningForm = ({
     }
   };
 
+  // get signature field information
+  const recipientSignatureField = useMemo(() => {
+    return fields.find(
+      (field) => field.type === FieldType.SIGNATURE && field.recipientId === recipient.id,
+    );
+  }, [fields, recipient.email]);
+
   return (
     <div className="flex h-full flex-col">
       {validateUninsertedFields && uninsertedFields[0] && (
@@ -282,6 +289,7 @@ export const DocumentSigningForm = ({
                         disabled={isSubmitting}
                         value={signature ?? ''}
                         onChange={(v) => setSignature(v ?? '')}
+                        recipientSignatureField={recipientSignatureField}
                         typedSignatureEnabled={document.documentMeta?.typedSignatureEnabled}
                         uploadSignatureEnabled={document.documentMeta?.uploadSignatureEnabled}
                         drawSignatureEnabled={document.documentMeta?.drawSignatureEnabled}

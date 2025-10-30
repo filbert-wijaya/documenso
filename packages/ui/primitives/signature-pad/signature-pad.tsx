@@ -2,7 +2,9 @@ import type { HTMLAttributes } from 'react';
 import { useState } from 'react';
 
 import { Trans } from '@lingui/react/macro';
+import type { Field } from '@prisma/client';
 import { KeyboardIcon, QrCodeIcon, UploadCloudIcon } from 'lucide-react';
+import QRCode from 'qrcode';
 import { match } from 'ts-pattern';
 
 import { DocumentSignatureType } from '@documenso/lib/constants/document';
@@ -31,6 +33,7 @@ export type SignaturePadProps = Omit<HTMLAttributes<HTMLCanvasElement>, 'onChang
   uploadSignatureEnabled?: boolean;
   drawSignatureEnabled?: boolean;
   qrCodeSignatureEnabled?: boolean;
+  recipientSignatureField?: Field;
 
   onValidityChange?: (isValid: boolean) => void;
 };
@@ -43,11 +46,24 @@ export const SignaturePad = ({
   uploadSignatureEnabled = true,
   drawSignatureEnabled = true,
   qrCodeSignatureEnabled = true,
+  recipientSignatureField,
 }: SignaturePadProps) => {
   const [imageSignature, setImageSignature] = useState(isBase64Image(value) ? value : '');
   const [drawSignature, setDrawSignature] = useState(isBase64Image(value) ? value : '');
   const [typedSignature, setTypedSignature] = useState(isBase64Image(value) ? '' : value);
-  const [qrCodeSignature, setQrCodeSignature] = useState(isBase64Image(value) ? '' : value);
+
+  let qr_code = '';
+
+  // Generate QR code as base64 string
+  QRCode.toDataURL(
+    'http://localhost:3001/v1/signature/' + recipientSignatureField?.secondaryId,
+    (url, err) => {
+      if (err) throw err;
+      qr_code = url;
+    },
+  );
+
+  const [qrCodeSignature, setQrCodeSignature] = useState(qr_code);
 
   /**
    * This is cooked.
@@ -149,7 +165,7 @@ export const SignaturePad = ({
         onImageSignatureChange(imageSignature);
       })
       .with('qr', () => {
-        onQrCodeSignatureChange(qrCodeSignature);
+        onQrCodeSignatureChange(qr_code);
       })
       .exhaustive();
   };
@@ -236,12 +252,9 @@ export const SignaturePad = ({
         value="qr"
         className={cn(
           'border-border aspect-signature-pad dark:bg-background relative rounded-md border bg-neutral-50',
-          {
-            'bg-white': qrCodeSignature,
-          },
         )}
       >
-        <SignaturePadQrCode value={imageSignature} onChange={onQrCodeSignatureChange} />
+        <SignaturePadQrCode value={qr_code} />
       </TabsContent>
     </Tabs>
   );

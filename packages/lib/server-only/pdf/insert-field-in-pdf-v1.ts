@@ -151,8 +151,8 @@ export const insertFieldInPDFV1 = async (pdf: PDFDocument, field: FieldWithSigna
 
           const scalingFactor = Math.min(fieldWidth / imageWidth, fieldHeight / imageHeight, 1);
 
-          imageWidth = imageWidth * scalingFactor;
-          imageHeight = imageHeight * scalingFactor;
+          imageWidth = imageWidth * scalingFactor * 2;
+          imageHeight = imageHeight * scalingFactor * 2;
 
           let imageX = fieldX + (fieldWidth - imageWidth) / 2;
           let imageY = fieldY + (fieldHeight - imageHeight) / 2;
