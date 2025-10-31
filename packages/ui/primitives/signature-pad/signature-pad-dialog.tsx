@@ -1,10 +1,11 @@
 import type { HTMLAttributes } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { MessageDescriptor } from '@lingui/core';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { Field } from '@prisma/client';
 import { motion } from 'framer-motion';
+import QRCode from 'qrcode';
 
 import { parseMessageDescriptor } from '@documenso/lib/utils/i18n';
 import { Dialog, DialogClose, DialogContent, DialogFooter } from '@documenso/ui/primitives/dialog';
@@ -42,8 +43,27 @@ export const SignaturePadDialog = ({
 }: SignaturePadDialogProps) => {
   const { i18n } = useLingui();
 
+  const [qrCode, setQrCode] = useState('');
+
+  useEffect(() => {
+    // Generate QR code as base64 string
+    QRCode.toDataURL('http://localhost:3001/v1/signature/' + recipientSignatureField?.secondaryId)
+      .then((url) => {
+        setQrCode(url);
+        if (!value && qrCodeSignatureEnabled) setSignature(url);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [recipientSignatureField?.secondaryId]);
+
   const [showSignatureModal, setShowSignatureModal] = useState(false);
-  const [signature, setSignature] = useState<string>(value ?? '');
+  const [signature, setSignature] = useState<string>(() => {
+    if (value) return value;
+    return '';
+  });
+
+  console.log(signature);
 
   return (
     <div
@@ -55,9 +75,13 @@ export const SignaturePadDialog = ({
         },
       )}
     >
-      {value && (
+      {value ? (
         <div className="inset-0 h-full w-full">
           <SignatureRender value={value} />
+        </div>
+      ) : (
+        <div className="inset-0 h-full w-full">
+          <SignatureRender value={signature} />
         </div>
       )}
 
@@ -69,7 +93,7 @@ export const SignaturePadDialog = ({
         onClick={() => setShowSignatureModal(true)}
         whileHover="onHover"
       >
-        {!value && !disableAnimation && (
+        {!value && !qrCodeSignatureEnabled && !qrCode && !disableAnimation && (
           <motion.svg
             width="120"
             height="120"
@@ -125,7 +149,7 @@ export const SignaturePadDialog = ({
             uploadSignatureEnabled={uploadSignatureEnabled}
             drawSignatureEnabled={drawSignatureEnabled}
             qrCodeSignatureEnabled={qrCodeSignatureEnabled}
-            recipientSignatureField={recipientSignatureField}
+            qrCode={qrCode}
           />
 
           <DialogFooter>

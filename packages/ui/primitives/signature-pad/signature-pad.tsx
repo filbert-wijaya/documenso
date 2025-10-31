@@ -2,9 +2,8 @@ import type { HTMLAttributes } from 'react';
 import { useEffect, useState } from 'react';
 
 import { Trans } from '@lingui/react/macro';
-import type { Field } from '@prisma/client';
+// import type { Field } from '@prisma/client';
 import { KeyboardIcon, QrCodeIcon, UploadCloudIcon } from 'lucide-react';
-import QRCode from 'qrcode';
 import { match } from 'ts-pattern';
 
 import { DocumentSignatureType } from '@documenso/lib/constants/document';
@@ -33,7 +32,7 @@ export type SignaturePadProps = Omit<HTMLAttributes<HTMLCanvasElement>, 'onChang
   uploadSignatureEnabled?: boolean;
   drawSignatureEnabled?: boolean;
   qrCodeSignatureEnabled?: boolean;
-  recipientSignatureField?: Field;
+  qrCode?: string;
 
   onValidityChange?: (isValid: boolean) => void;
 };
@@ -46,22 +45,13 @@ export const SignaturePad = ({
   uploadSignatureEnabled = true,
   drawSignatureEnabled = true,
   qrCodeSignatureEnabled = true,
-  recipientSignatureField,
+  qrCode,
 }: SignaturePadProps) => {
   const [imageSignature, setImageSignature] = useState(isBase64Image(value) ? value : '');
   const [drawSignature, setDrawSignature] = useState(isBase64Image(value) ? value : '');
   const [typedSignature, setTypedSignature] = useState(isBase64Image(value) ? '' : value);
 
-  let qr_code = '';
-
-  // Generate QR code as base64 string
-  QRCode.toDataURL(
-    'http://localhost:3001/v1/signature/' + recipientSignatureField?.secondaryId,
-    (url, err) => {
-      if (err) throw err;
-      qr_code = url;
-    },
-  );
+  const qr_code = qrCode ?? '';
 
   const [qrCodeSignature, setQrCodeSignature] = useState(qr_code);
 
