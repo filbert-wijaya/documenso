@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Trans } from '@lingui/react/macro';
 import type { Field } from '@prisma/client';
@@ -110,6 +110,18 @@ export const SignaturePad = ({
       throw new Error('No signature enabled');
     })(),
   );
+
+  // default value when the only mode is QR code
+  useEffect(() => {
+    if (
+      !drawSignatureEnabled &&
+      !typedSignatureEnabled &&
+      !uploadSignatureEnabled &&
+      qrCodeSignatureEnabled
+    ) {
+      onTabChange('qr');
+    }
+  }, []);
 
   const onImageSignatureChange = (value: string) => {
     setImageSignature(value);
