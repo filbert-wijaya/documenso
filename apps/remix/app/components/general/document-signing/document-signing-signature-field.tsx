@@ -1,9 +1,10 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
 import { Trans } from '@lingui/react/macro';
 import { Loader } from 'lucide-react';
+import QRCode from 'qrcode';
 import { useRevalidator } from 'react-router';
 
 import { DO_NOT_INVALIDATE_QUERY_ON_MUTATION } from '@documenso/lib/constants/trpc';
@@ -77,6 +78,19 @@ export const DocumentSigningSignatureField = ({
 
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [localSignature, setLocalSignature] = useState<string | null>(null);
+
+  const [qrCode, setQrCode] = useState('');
+
+  useEffect(() => {
+    // Generate QR code as base64 string
+    QRCode.toDataURL('http://localhost:3001/v1/signature/' + field.secondaryId)
+      .then((url) => {
+        setQrCode(url);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [field.secondaryId]);
 
   const state = useMemo<SignatureFieldState>(() => {
     if (!field.inserted) {
@@ -286,6 +300,7 @@ export const DocumentSigningSignatureField = ({
             uploadSignatureEnabled={uploadSignatureEnabled}
             drawSignatureEnabled={drawSignatureEnabled}
             qrCodeSignatureEnabled={qrCodeSignatureEnabled}
+            qrCode={qrCode}
           />
 
           <DocumentSigningDisclosure />

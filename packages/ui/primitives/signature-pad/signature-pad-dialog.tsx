@@ -63,8 +63,6 @@ export const SignaturePadDialog = ({
     return '';
   });
 
-  console.log(signature);
-
   return (
     <div
       className={cn(
