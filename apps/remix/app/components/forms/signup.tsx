@@ -294,6 +294,7 @@ export const SignUpForm = ({
                         disabled={isSubmitting}
                         value={value}
                         onChange={(v) => onChange(v ?? '')}
+                        qrCodeSignatureEnabled={false}
                       />
                     </FormControl>
 

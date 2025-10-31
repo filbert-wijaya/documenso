@@ -80,13 +80,19 @@ model Employee {
   id            Int        @id @default(autoincrement())
   user_id       String     @unique
   employee_no   String
+  company_id    Int
   department_id Int
   branch_id     Int
+  level_id      Int
+  grade_id      Int
   active        Boolean    @default(true)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @default(now()) @updatedAt
+  company       Company    @relation(fields: [company_id], references: [id])
   department    Department @relation(fields: [department_id], references: [id])
   branch        Branch     @relation(fields: [branch_id], references: [id])
+  level         Level      @relation(fields: [level_id], references: [id])
+  grade         Grade      @relation(fields: [grade_id], references: [id])
   user          CoreUser   @relation(fields: [user_id], references: [id])
 
   @@schema("core_hr_sch")
@@ -103,6 +109,36 @@ model Department {
 }
 
 model Branch {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now()) @updatedAt
+  employee  Employee[]
+
+  @@schema("core_hr_sch")
+}
+
+model Company {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now()) @updatedAt
+  employee  Employee[]
+
+  @@schema("core_hr_sch")
+}
+
+model Level {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now()) @updatedAt
+  employee  Employee[]
+
+  @@schema("core_hr_sch")
+}
+
+model Grade {
   id        Int        @id @default(autoincrement())
   name      String     @unique
   createdAt DateTime   @default(now())
