@@ -23,7 +23,7 @@ export function DocumentRejectionConfirmedEmail({
 }: DocumentRejectionConfirmedEmailProps) {
   const { _ } = useLingui();
 
-  const previewText = _(msg`You have rejected the document '${documentName}'`);
+  const previewText = _(msg`You have rejected the document "${documentName}"`);
 
   return (
     <Html>

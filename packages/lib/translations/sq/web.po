@@ -330,8 +330,8 @@ msgid "{recipientName} {action} a document by using one of your direct links"
 msgstr "{recipientName} {action} një dokument duke përdorur një nga lidhjet e drejtpërdrejta"
 
 #: packages/email/templates/document-rejected.tsx
-msgid "{recipientName} has rejected the document '{documentName}'"
-msgstr "{recipientName} ka refuzuar dokumentin '{documentName}'"
+msgid "{recipientName} has rejected the document \"{documentName}\""
+msgstr "{recipientName} ka refuzuar dokumentin \"{documentName}\""
 
 #: packages/email/template-components/template-document-recipient-signed.tsx
 msgid "{recipientReference} has completed signing the document."
@@ -8410,8 +8410,8 @@ msgid "You have reached your document limit. <0>Upgrade your account to continue
 msgstr "Ju keni arritur limitin tuaj të dokumenteve. <0>Përmirësoni llogarinë tuaj për të vazhduar!</0>"
 
 #: packages/email/templates/document-rejection-confirmed.tsx
-msgid "You have rejected the document '{documentName}'"
-msgstr "Ju e keni refuzuar dokumentin '{documentName}'"
+msgid "You have rejected the document \"{documentName}\""
+msgstr "Ju e keni refuzuar dokumentin \"{documentName}\""
 
 #: apps/remix/app/routes/_recipient+/sign.$token+/rejected.tsx
 #: apps/remix/app/components/embed/embed-document-rejected.tsx

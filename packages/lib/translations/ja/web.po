@@ -477,7 +477,7 @@ msgid "{recipientName} {action} a document by using one of your direct links"
 msgstr "{recipientName} が、あなたのダイレクトリンクの 1 つを使用してドキュメントを {action} しました"
 
 #: packages/email/templates/document-rejected.tsx
-msgid "{recipientName} has rejected the document '{documentName}'"
+msgid "{recipientName} has rejected the document \"{documentName}\""
 msgstr "{recipientName} がドキュメント「{documentName}」を却下しました"
 
 #: packages/email/template-components/template-document-recipient-signed.tsx
@@ -14585,8 +14585,8 @@ msgid "You have reached your document limit. <0>Upgrade your account to continue
 msgstr "文書数の上限に達しました。<0>アカウントをアップグレードして続行してください！</0>"
 
 #: packages/email/templates/document-rejection-confirmed.tsx
-msgid "You have rejected the document '{documentName}'"
-msgstr "ドキュメント '{documentName}' を却下しました"
+msgid "You have rejected the document \"{documentName}\""
+msgstr "ドキュメント「{documentName}」を却下しました"
 
 #: apps/remix/app/components/embed/embed-document-rejected.tsx
 #: apps/remix/app/routes/_recipient+/sign.$token+/rejected.tsx

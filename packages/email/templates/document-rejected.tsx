@@ -23,7 +23,7 @@ export function DocumentRejectedEmail({
 }: DocumentRejectedEmailProps) {
   const { _ } = useLingui();
 
-  const previewText = _(msg`${recipientName} has rejected the document '${documentName}'`);
+  const previewText = _(msg`${recipientName} has rejected the document "${documentName}"`);
 
   return (
     <Html>

@@ -477,7 +477,7 @@ msgid "{recipientName} {action} a document by using one of your direct links"
 msgstr "{recipientName} 通过使用您的某个直链 {action} 了一个文档"
 
 #: packages/email/templates/document-rejected.tsx
-msgid "{recipientName} has rejected the document '{documentName}'"
+msgid "{recipientName} has rejected the document \"{documentName}\""
 msgstr "{recipientName} 已拒签文档“{documentName}”"
 
 #: packages/email/template-components/template-document-recipient-signed.tsx
@@ -14585,7 +14585,7 @@ msgid "You have reached your document limit. <0>Upgrade your account to continue
 msgstr "你已达到文档数量上限。<0>升级账号以继续！</0>"
 
 #: packages/email/templates/document-rejection-confirmed.tsx
-msgid "You have rejected the document '{documentName}'"
+msgid "You have rejected the document \"{documentName}\""
 msgstr "您已拒签文档“{documentName}”"
 
 #: apps/remix/app/components/embed/embed-document-rejected.tsx

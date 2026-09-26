@@ -477,8 +477,8 @@ msgid "{recipientName} {action} a document by using one of your direct links"
 msgstr "{recipientName}님이 귀하의 다이렉트 링크 중 하나를 사용하여 문서를 {action}했습니다."
 
 #: packages/email/templates/document-rejected.tsx
-msgid "{recipientName} has rejected the document '{documentName}'"
-msgstr "{recipientName}님이 '{documentName}' 문서를 거부했습니다."
+msgid "{recipientName} has rejected the document \"{documentName}\""
+msgstr "{recipientName}님이 \"{documentName}\" 문서를 거부했습니다."
 
 #: packages/email/template-components/template-document-recipient-signed.tsx
 msgid "{recipientReference} has completed signing the document."
@@ -14585,8 +14585,8 @@ msgid "You have reached your document limit. <0>Upgrade your account to continue
 msgstr "문서 한도에 도달했습니다. <0>계정을 업그레이드해 계속 사용하세요!</0>"
 
 #: packages/email/templates/document-rejection-confirmed.tsx
-msgid "You have rejected the document '{documentName}'"
-msgstr "'{documentName}' 문서를 거부했습니다."
+msgid "You have rejected the document \"{documentName}\""
+msgstr "\"{documentName}\" 문서를 거부했습니다."
 
 #: apps/remix/app/components/embed/embed-document-rejected.tsx
 #: apps/remix/app/routes/_recipient+/sign.$token+/rejected.tsx
